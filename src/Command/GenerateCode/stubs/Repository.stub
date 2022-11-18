@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+namespace %NAMESPACE%;
+
+use App\Repository\Repository;
+use Hyperf\Di\Annotation\Inject;
+%USES%
+
+class %CLASS% extends Repository
+{
+    #[Inject]
+    protected %INJECT_CLASS% $model;
+
+    /**
+     * The table all columns.
+     */
+    protected array $cols = [];
+
+    public function __call($method, $parameters)
+    {
+        return $this->getModel()->{$method}(...$parameters);
+    }
+
+    /**
+     * get Model.
+     */
+    public function getModel(): %INJECT_CLASS%
+    {
+        return $this->model;
+    }
+}

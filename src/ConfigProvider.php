@@ -11,6 +11,7 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiBase;
 
+use Nasustop\HapiBase\Command\GenCodeCommand;
 use Nasustop\HapiBase\HttpServer\Response;
 use Nasustop\HapiBase\HttpServer\ResponseInterface;
 use Nasustop\HapiBase\Queue\Command\ConsumerCommand;
@@ -27,6 +28,7 @@ class ConfigProvider
             'commands' => [
                 ConsumerCommand::class,
                 ProducerCommand::class,
+                GenCodeCommand::class,
             ],
             'annotations' => [
                 'scan' => [

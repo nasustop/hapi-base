@@ -1,0 +1,91 @@
+<?php
+
+declare(strict_types=1);
+
+namespace %NAMESPACE%;
+
+use App\Constants\ErrorCode;
+use App\Controller\AbstractController;
+use App\Exception\BusinessException;
+use Hyperf\Di\Annotation\Inject;
+use Psr\Http\Message\ResponseInterface;
+%USES%
+
+class %CLASS% extends AbstractController
+{
+    #[Inject]
+    protected %INJECT_CLASS% $service;
+
+    public function actionCreate(): ResponseInterface
+    {
+        $params = $this->request->all();
+
+        %CONTROLLER_CREATE_VALIDATOR%
+
+        $result = $this->service->saveData($params);
+
+        return $this->response->success($result);
+    }
+
+    public function actionUpdate(): ResponseInterface
+    {
+        $params = $this->request->all();
+        $rules = [
+            'filter' => 'required|array',
+            'params' => 'required|array',
+        ];
+        $messages = [
+            'filter.required' => 'filter 参数必填',
+            'params.required' => 'params 参数必填',
+            'filter.array' => 'filter 参数错误，必须是数组格式',
+            'params.array' => 'params 参数错误，必须是数组格式',
+        ];
+        $validator = $this->validator->make($params, $rules, $messages);
+
+        if ($validator->fails()) {
+            throw new BusinessException(ErrorCode::BAD_REQUEST, $validator->errors()->first());
+        }
+
+        $result = $this->service->updateOneBy($params['filter'], $params['params']);
+
+        return $this->response->success($result);
+    }
+
+    public function actionDelete(): ResponseInterface
+    {
+        $filter = $this->request->all();
+        $result = $this->service->deleteOneBy($filter);
+
+        return $this->response->success($result);
+    }
+
+    public function actionInfo(): ResponseInterface
+    {
+        $filter = $this->request->all();
+        $result = $this->service->getInfo($filter);
+
+        return $this->response->success($result);
+    }
+
+    public function actionList(): ResponseInterface
+    {
+        $params = $this->request->all();
+        $rules = [
+            'filter' => 'required|array',
+        ];
+        $messages = [
+            'filter.required' => 'filter 参数必填',
+            'filter.array' => 'filter 参数错误，必须是数组格式',
+        ];
+        $validator = $this->validator->make($params, $rules, $messages);
+
+        if ($validator->fails()) {
+            throw new BusinessException(ErrorCode::BAD_REQUEST, $validator->errors()->first());
+        }
+        $page = $this->request->input('page', 1);
+        $page_size = $this->request->input('page_size', 20);
+        $result = $this->service->pageLists($params['filter'], '*', $page, $page_size);
+
+        return $this->response->success($result);
+    }
+}
