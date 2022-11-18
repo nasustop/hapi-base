@@ -138,6 +138,7 @@ class Consumer extends AbstractProcess
         );
         $message = $this->getAmqpMessage()->onQueue($this->queue);
         echo sprintf("Queue[%s] start...\n", $this->name);
-        $consumer->consume($message);
+        $factory = $this->container->get(ConnectionFactory::class);
+        $consumer->setFactory($factory)->consume($message);
     }
 }

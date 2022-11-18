@@ -14,14 +14,14 @@ namespace Nasustop\HapiBase\Queue\Message;
 use Hyperf\Amqp\Builder\ExchangeBuilder;
 use Hyperf\Amqp\Builder\QueueBuilder;
 use Hyperf\Amqp\Constants;
-use Hyperf\Amqp\Consumer;
 use Hyperf\Amqp\Message\ConsumerMessage;
 use Hyperf\Amqp\Message\ProducerMessageInterface;
 use Hyperf\Amqp\Packer\Packer;
-use Hyperf\Amqp\Producer;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Utils\ApplicationContext;
 use Nasustop\HapiBase\Queue\Amqp\ConnectionFactory;
+use Nasustop\HapiBase\Queue\Amqp\Consumer;
+use Nasustop\HapiBase\Queue\Amqp\Producer;
 use Nasustop\HapiBase\Queue\Job\JobInterface;
 use PhpAmqpLib\Wire\AMQPTable;
 
@@ -148,7 +148,7 @@ class AmqpMessage extends ConsumerMessage implements ProducerMessageInterface
         $connection = $factory->getConnection($this->getPoolName());
 
         $channel = $connection->getConfirmChannel();
-        $consumer->declare($this, $channel);
+        $consumer->setFactory($factory)->declare($this, $channel);
         self::$declare_status = true;
         return $this;
     }
@@ -156,7 +156,8 @@ class AmqpMessage extends ConsumerMessage implements ProducerMessageInterface
     public function dispatcher(): bool
     {
         $producer = ApplicationContext::getContainer()->get(Producer::class);
-        return $producer->produce($this->declare());
+        $factory = ApplicationContext::getContainer()->get(ConnectionFactory::class);
+        return $producer->setFactory($factory)->produce($this->declare());
     }
 
     protected function getConfig(string $key, $default = null)

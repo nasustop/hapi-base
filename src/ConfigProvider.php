@@ -14,6 +14,9 @@ namespace Nasustop\HapiBase;
 use Nasustop\HapiBase\Command\GenCodeCommand;
 use Nasustop\HapiBase\HttpServer\Response;
 use Nasustop\HapiBase\HttpServer\ResponseInterface;
+use Nasustop\HapiBase\Queue\Amqp\Consumer;
+use Nasustop\HapiBase\Queue\Amqp\ConsumerFactory;
+use Nasustop\HapiBase\Queue\Amqp\Producer;
 use Nasustop\HapiBase\Queue\Command\ConsumerCommand;
 use Nasustop\HapiBase\Queue\Command\ProducerCommand;
 
@@ -24,6 +27,8 @@ class ConfigProvider
         return [
             'dependencies' => [
                 ResponseInterface::class => Response::class,
+                Consumer::class => ConsumerFactory::class,
+                Producer::class => Producer::class,
             ],
             'commands' => [
                 ConsumerCommand::class,
