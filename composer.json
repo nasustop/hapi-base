@@ -23,6 +23,7 @@
         "hyperf/async-queue": "~3.0.0",
         "hyperf/database": "~3.0.0",
         "hyperf/db-connection": "~3.0.0",
+        "hyperf/http-server": "~3.0.0",
         "hyperf/redis": "~3.0.0"
     },
     "require-dev": {

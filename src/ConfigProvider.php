@@ -11,6 +11,8 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiBase;
 
+use Nasustop\HapiBase\HttpServer\Response;
+use Nasustop\HapiBase\HttpServer\ResponseInterface;
 use Nasustop\HapiBase\Queue\Command\ConsumerCommand;
 use Nasustop\HapiBase\Queue\Command\ProducerCommand;
 
@@ -20,6 +22,7 @@ class ConfigProvider
     {
         return [
             'dependencies' => [
+                ResponseInterface::class => Response::class,
             ],
             'commands' => [
                 ConsumerCommand::class,
