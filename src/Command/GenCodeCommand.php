@@ -11,11 +11,11 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiBase\Command;
 
+use Hyperf\Command\Command as HyperfCommand;
 use Nasustop\HapiBase\Command\GenerateCode\GenController;
 use Nasustop\HapiBase\Command\GenerateCode\GenModel;
 use Nasustop\HapiBase\Command\GenerateCode\GenRepository;
 use Nasustop\HapiBase\Command\GenerateCode\GenService;
-use Hyperf\Command\Command as HyperfCommand;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
