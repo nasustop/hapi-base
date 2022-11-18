@@ -11,6 +11,9 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiBase;
 
+use Nasustop\HapiBase\Queue\Command\ConsumerCommand;
+use Nasustop\HapiBase\Queue\Command\ProducerCommand;
+
 class ConfigProvider
 {
     public function __invoke(): array
@@ -19,12 +22,22 @@ class ConfigProvider
             'dependencies' => [
             ],
             'commands' => [
+                ConsumerCommand::class,
+                ProducerCommand::class,
             ],
             'annotations' => [
                 'scan' => [
                     'paths' => [
                         __DIR__,
                     ],
+                ],
+            ],
+            'publish' => [
+                [
+                    'id' => 'config',
+                    'description' => 'The config for queue.',
+                    'source' => __DIR__ . '/../publish/queue.php',
+                    'destination' => BASE_PATH . '/config/autoload/queue.php',
                 ],
             ],
         ];
