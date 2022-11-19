@@ -59,6 +59,14 @@ class AmqpMessage extends ConsumerMessage implements ProducerMessageInterface
         return $this->serialize();
     }
 
+    /**
+     * get Job.
+     */
+    public function job(): JobInterface
+    {
+        return $this->payload;
+    }
+
     public function serialize(): string
     {
         $packer = ApplicationContext::getContainer()->get(Packer::class);

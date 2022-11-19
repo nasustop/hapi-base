@@ -19,6 +19,7 @@ use Nasustop\HapiBase\Queue\Amqp\ConsumerFactory;
 use Nasustop\HapiBase\Queue\Amqp\Producer;
 use Nasustop\HapiBase\Queue\Command\ConsumerCommand;
 use Nasustop\HapiBase\Queue\Command\ProducerCommand;
+use Nasustop\HapiBase\Queue\Listener\QueueHandleListener;
 
 class ConfigProvider
 {
@@ -34,6 +35,9 @@ class ConfigProvider
                 ConsumerCommand::class,
                 ProducerCommand::class,
                 GenCodeCommand::class,
+            ],
+            'listeners' => [
+                QueueHandleListener::class,
             ],
             'annotations' => [
                 'scan' => [

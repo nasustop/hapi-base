@@ -119,7 +119,7 @@ class Consumer extends AbstractProcess
 
     protected function driverRedis()
     {
-        echo sprintf("Queue[%s] start...\n", $this->name);
+        echo sprintf("Redis Queue Consumer [%s] start...\n", $this->name);
         $this->getRedisMessage()->onQueue($this->queue)->consume();
     }
 
@@ -128,16 +128,13 @@ class Consumer extends AbstractProcess
      */
     protected function driverAmqp()
     {
-        $consumer = make(
-            BaseConsumer::class,
-            [
-                $this->container,
-                $this->container->get(ConnectionFactory::class),
-                $this->container->get(StdoutLoggerInterface::class),
-            ]
+        $consumer = new BaseConsumer(
+            $this->container,
+            $this->container->get(ConnectionFactory::class),
+            $this->container->get(StdoutLoggerInterface::class)
         );
         $message = $this->getAmqpMessage()->onQueue($this->queue);
-        echo sprintf("Queue[%s] start...\n", $this->name);
+        echo sprintf("Amqp Queue Consumer [%s] start...\n", $this->name);
         $factory = $this->container->get(ConnectionFactory::class);
         $consumer->setFactory($factory)->consume($message);
     }
