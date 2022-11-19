@@ -11,9 +11,11 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiBase;
 
+use Hyperf\HttpServer\CoreMiddleware;
 use Nasustop\HapiBase\Command\GenCodeCommand;
 use Nasustop\HapiBase\HttpServer\Response;
 use Nasustop\HapiBase\HttpServer\ResponseInterface;
+use Nasustop\HapiBase\Middleware\CoreMiddleware as HapiCoreMiddleware;
 use Nasustop\HapiBase\Queue\Amqp\Consumer;
 use Nasustop\HapiBase\Queue\Amqp\ConsumerFactory;
 use Nasustop\HapiBase\Queue\Amqp\Producer;
@@ -30,6 +32,7 @@ class ConfigProvider
                 ResponseInterface::class => Response::class,
                 Consumer::class => ConsumerFactory::class,
                 Producer::class => Producer::class,
+                CoreMiddleware::class => HapiCoreMiddleware::class,
             ],
             'commands' => [
                 ConsumerCommand::class,
