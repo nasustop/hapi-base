@@ -14,7 +14,8 @@ namespace Nasustop\HapiBase\Repository;
 use Hyperf\Database\Model\Builder;
 use Hyperf\Database\Model\Model;
 use Hyperf\DbConnection\Db;
-use Nasustop\HapiBase\Exception\RepositoryRuntimeException;
+use Hyperf\HttpMessage\Exception\BadRequestHttpException;
+use Hyperf\HttpMessage\Exception\ServerErrorHttpException;
 
 abstract class Repository implements RepositoryInterface
 {
@@ -27,10 +28,10 @@ abstract class Repository implements RepositoryInterface
     public function getModel(): Model
     {
         if (empty($this->model)) {
-            throw new \LogicException('当前repository必须设置model');
+            throw new ServerErrorHttpException('当前repository必须设置model');
         }
         if (! $this->model instanceof Model) {
-            throw new \LogicException('当前repository设置的model类型错误，必须继承基础Model类');
+            throw new ServerErrorHttpException('当前repository设置的model类型错误，必须继承基础Model类');
         }
         return $this->model;
     }
@@ -38,7 +39,7 @@ abstract class Repository implements RepositoryInterface
     public function getCols(): array
     {
         if (! isset($this->cols)) {
-            throw new \LogicException('当前repository必须设置cols');
+            throw new ServerErrorHttpException('当前repository必须设置cols');
         }
         return $this->cols;
     }
@@ -98,28 +99,28 @@ abstract class Repository implements RepositoryInterface
     }
 
     /**
-     * @throws RepositoryRuntimeException
+     * @throws BadRequestHttpException
      */
     public function updateOneBy(array $filter, array $data): array
     {
         $keyName = $this->getModel()->getKeyName();
         if (empty($keyName)) {
-            throw new \LogicException('当前Model没有"primaryKey"，请重写updateOneBy方法');
+            throw new ServerErrorHttpException('当前Model没有"primaryKey"，请重写updateOneBy方法');
         }
         $result = $this->getInfo($filter);
         if (empty($result)) {
-            throw new RepositoryRuntimeException('修改的数据不存在');
+            throw new BadRequestHttpException('修改的数据不存在');
         }
         Db::beginTransaction();
         try {
             $rows = $this->findQuery()->find($result[$keyName])->update($data);
             if ($rows > 1) {
-                throw new RepositoryRuntimeException('当前条件修改了多条数据');
+                throw new BadRequestHttpException('当前条件修改了多条数据');
             }
             Db::commit();
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             Db::rollBack();
-            throw new RepositoryRuntimeException($exception->getMessage());
+            throw new BadRequestHttpException($exception->getMessage());
         }
         return $this->getInfoByID($result[$keyName]);
     }
@@ -132,24 +133,24 @@ abstract class Repository implements RepositoryInterface
     }
 
     /**
-     * @throws RepositoryRuntimeException
+     * @throws BadRequestHttpException
      */
     public function deleteOneBy(array $filter): bool
     {
         $data = $this->getInfo($filter);
         if (empty($data)) {
-            throw new RepositoryRuntimeException('删除的数据不存在');
+            throw new BadRequestHttpException('删除的数据不存在');
         }
         Db::beginTransaction();
         try {
             $rows = $this->findQuery()->find($data[$this->getModel()->getKeyName()])->delete();
             if ($rows != 1) {
-                throw new RepositoryRuntimeException('当前条件删除的数据为' . $rows . '条数据，当前方法只能删除一条数据，请修改条件');
+                throw new BadRequestHttpException('当前条件删除的数据为' . $rows . '条数据，当前方法只能删除一条数据，请修改条件');
             }
             Db::commit();
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             Db::rollBack();
-            throw new RepositoryRuntimeException($exception->getMessage());
+            throw new BadRequestHttpException($exception->getMessage());
         }
 
         return true;
