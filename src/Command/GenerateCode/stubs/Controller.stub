@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace %NAMESPACE%;
 
-use App\Constants\ErrorCode;
 use App\Controller\AbstractController;
-use App\Exception\BusinessException;
 use Hyperf\Di\Annotation\Inject;
+use Hyperf\HttpMessage\Exception\BadRequestHttpException;
 use Psr\Http\Message\ResponseInterface;
 %USES%
 
@@ -40,10 +39,10 @@ class %CLASS% extends AbstractController
             'filter.array' => 'filter 参数错误，必须是数组格式',
             'params.array' => 'params 参数错误，必须是数组格式',
         ];
-        $validator = $this->validator->make($params, $rules, $messages);
+        $validator = $this->validatorFactory->make($params, $rules, $messages);
 
         if ($validator->fails()) {
-            throw new BusinessException(ErrorCode::BAD_REQUEST, $validator->errors()->first());
+            throw new BadRequestHttpException($validator->errors()->first());
         }
 
         $result = $this->service->updateOneBy($params['filter'], $params['params']);
@@ -77,10 +76,10 @@ class %CLASS% extends AbstractController
             'filter.required' => 'filter 参数必填',
             'filter.array' => 'filter 参数错误，必须是数组格式',
         ];
-        $validator = $this->validator->make($params, $rules, $messages);
+        $validator = $this->validatorFactory->make($params, $rules, $messages);
 
         if ($validator->fails()) {
-            throw new BusinessException(ErrorCode::BAD_REQUEST, $validator->errors()->first());
+            throw new BadRequestHttpException($validator->errors()->first());
         }
         $page = $this->request->input('page', 1);
         $page_size = $this->request->input('page_size', 20);

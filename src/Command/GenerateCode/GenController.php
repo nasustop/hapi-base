@@ -116,9 +116,9 @@ class GenController extends AbstractGen
             $code .= "\t\t\t'{$column}.required' => '{$column} 参数必填',\n";
         }
         $code .= "\t\t];\n";
-        $code .= "\t\t\$validator = \$this->validator->make(\$params, \$rules, \$messages);\n\n";
+        $code .= "\t\t\$validator = \$this->validatorFactory->make(\$params, \$rules, \$messages);\n\n";
         $code .= "\t\tif (\$validator->fails()) {\n";
-        $code .= "\t\t\tthrow new BusinessException(ErrorCode::BAD_REQUEST, \$validator->errors()->first());\n";
+        $code .= "\t\t\tthrow new BadRequestHttpException(\$validator->errors()->first());\n";
         $code .= "\t\t}";
         return str_replace('%CONTROLLER_CREATE_VALIDATOR%', $code, $stub);
     }
