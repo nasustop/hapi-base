@@ -14,6 +14,7 @@ namespace Nasustop\HapiBase\Queue;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Process\AbstractProcess;
+use Hyperf\Utils\ApplicationContext;
 use Nasustop\HapiBase\Queue\Amqp\ConnectionFactory;
 use Nasustop\HapiBase\Queue\Amqp\Consumer as BaseConsumer;
 use Nasustop\HapiBase\Queue\Message\AmqpMessage;
@@ -28,12 +29,15 @@ class Consumer extends AbstractProcess
 
     protected AmqpMessage $amqpMessage;
 
+    protected StdoutLoggerInterface $logger;
+
     public function __construct(protected ContainerInterface $container)
     {
         if (empty($this->queue)) {
             $this->queue = self::class;
         }
         $this->initQueue();
+        $this->logger = ApplicationContext::getContainer()->get(StdoutLoggerInterface::class);
         parent::__construct($container);
     }
 
@@ -119,7 +123,8 @@ class Consumer extends AbstractProcess
 
     protected function driverRedis()
     {
-        echo sprintf("Redis Queue Consumer [%s] start...\n", $this->name);
+        $info = sprintf('Redis Queue Consumer [%s] start...', $this->name);
+        $this->logger->info($info);
         $this->getRedisMessage()->onQueue($this->queue)->consume();
     }
 
@@ -134,7 +139,8 @@ class Consumer extends AbstractProcess
             $this->container->get(StdoutLoggerInterface::class)
         );
         $message = $this->getAmqpMessage()->onQueue($this->queue);
-        echo sprintf("Amqp Queue Consumer [%s] start...\n", $this->name);
+        $info = sprintf('Amqp Queue Consumer [%s] start...', $this->name);
+        $this->logger->info($info);
         $factory = $this->container->get(ConnectionFactory::class);
         $consumer->setFactory($factory)->consume($message);
     }

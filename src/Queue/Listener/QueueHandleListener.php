@@ -21,9 +21,11 @@ use Hyperf\AsyncQueue\Event\BeforeHandle;
 use Hyperf\AsyncQueue\Event\Event;
 use Hyperf\AsyncQueue\Event\FailedHandle;
 use Hyperf\AsyncQueue\Event\RetryHandle;
+use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\ExceptionHandler\Formatter\FormatterInterface;
 use Hyperf\Logger\LoggerFactory;
+use Hyperf\Utils\ApplicationContext;
 use Nasustop\HapiBase\Queue\Message\AmqpMessage;
 use Psr\Log\LoggerInterface;
 
@@ -31,9 +33,12 @@ class QueueHandleListener implements ListenerInterface
 {
     protected LoggerInterface $logger;
 
+    protected StdoutLoggerInterface $stdoutLogger;
+
     public function __construct(LoggerFactory $loggerFactory, protected FormatterInterface $formatter)
     {
         $this->logger = $loggerFactory->get('queue');
+        $this->stdoutLogger = ApplicationContext::getContainer()->get(StdoutLoggerInterface::class);
     }
 
     public function listen(): array
@@ -62,16 +67,21 @@ class QueueHandleListener implements ListenerInterface
             switch (true) {
                 case $event instanceof BeforeHandle:
                     $this->logger->info(sprintf('[%s] Processing Redis job [%s].', $date, $jobClass));
+                    $this->stdoutLogger->info(sprintf('[%s] Processing Redis job [%s].', $date, $jobClass));
                     break;
                 case $event instanceof AfterHandle:
                     $this->logger->info(sprintf('[%s] Processed Redis Job [%s].', $date, $jobClass));
+                    $this->stdoutLogger->info(sprintf('[%s] Processed Redis Job [%s].', $date, $jobClass));
                     break;
                 case $event instanceof FailedHandle:
                     $this->logger->error(sprintf('[%s] Failed Redis Job [%s].', $date, $jobClass));
+                    $this->stdoutLogger->error(sprintf('[%s] Failed Redis Job [%s].', $date, $jobClass));
                     $this->logger->error($this->formatter->format($event->getThrowable()));
+                    $this->stdoutLogger->error($this->formatter->format($event->getThrowable()));
                     break;
                 case $event instanceof RetryHandle:
                     $this->logger->warning(sprintf('[%s] Retried Redis Job [%s].', $date, $jobClass));
+                    $this->stdoutLogger->warning(sprintf('[%s] Retried Redis Job [%s].', $date, $jobClass));
                     break;
             }
         }
@@ -88,12 +98,15 @@ class QueueHandleListener implements ListenerInterface
                 switch (true) {
                     case $event instanceof BeforeConsume:
                         $this->logger->info(sprintf('[%s] Processing Amqp Job [%s].', $date, $jobClass));
+                        $this->stdoutLogger->info(sprintf('[%s] Processing Amqp Job [%s].', $date, $jobClass));
                         break;
                     case $event instanceof AfterConsume:
                         $this->logger->info(sprintf('[%s] Processed Amqp Job [%s].', $date, $jobClass));
+                        $this->stdoutLogger->info(sprintf('[%s] Processed Amqp Job [%s].', $date, $jobClass));
                         break;
                     case $event instanceof FailToConsume:
                         $this->logger->warning(sprintf('[%s] Failed Amqp Job [%s].', $date, $jobClass));
+                        $this->stdoutLogger->warning(sprintf('[%s] Failed Amqp Job [%s].', $date, $jobClass));
                         break;
                 }
             }

@@ -40,7 +40,7 @@ class ProducerCommand extends HyperfCommand
             'date' => date('Y-m-d H:i:s'),
         ]);
         (new Producer($job))->onQueue('default')->dispatcher();
-        echo 'push job success';
+        $this->info('push job success');
 
         // 安全关闭进程，否则amqp会抛出warning异常
         $pid = posix_getpid();
