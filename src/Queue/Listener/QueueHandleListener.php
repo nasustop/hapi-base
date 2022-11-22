@@ -21,6 +21,7 @@ use Hyperf\AsyncQueue\Event\BeforeHandle;
 use Hyperf\AsyncQueue\Event\Event;
 use Hyperf\AsyncQueue\Event\FailedHandle;
 use Hyperf\AsyncQueue\Event\RetryHandle;
+use Hyperf\Contract\ConfigInterface;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\ExceptionHandler\Formatter\FormatterInterface;
@@ -37,7 +38,8 @@ class QueueHandleListener implements ListenerInterface
 
     public function __construct(LoggerFactory $loggerFactory, protected FormatterInterface $formatter)
     {
-        $this->logger = $loggerFactory->get('queue');
+        $config = ApplicationContext::getContainer()->get(ConfigInterface::class);
+        $this->logger = $loggerFactory->get($config->get('queue.logger.name', 'queue'), $config->get('queue.logger.group', 'default'));
         $this->stdoutLogger = ApplicationContext::getContainer()->get(StdoutLoggerInterface::class);
     }
 
