@@ -19,6 +19,7 @@
     },
     "require": {
         "php": ">=8.0",
+        "firebase/php-jwt": "^6.3",
         "hyperf/amqp": "~3.0.0",
         "hyperf/async-queue": "~3.0.0",
         "hyperf/database": "~3.0.0",

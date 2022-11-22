@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Nasustop\HapiBase;
 
 use Hyperf\HttpServer\CoreMiddleware;
+use Nasustop\HapiBase\Auth\AuthManager;
 use Nasustop\HapiBase\Command\GenCodeCommand;
 use Nasustop\HapiBase\HttpServer\Response;
 use Nasustop\HapiBase\HttpServer\ResponseInterface;
@@ -33,6 +34,7 @@ class ConfigProvider
                 Consumer::class => ConsumerFactory::class,
                 Producer::class => Producer::class,
                 CoreMiddleware::class => HapiCoreMiddleware::class,
+                AuthManager::class => AuthManager::class,
             ],
             'commands' => [
                 ConsumerCommand::class,
@@ -51,7 +53,13 @@ class ConfigProvider
             ],
             'publish' => [
                 [
-                    'id' => 'config',
+                    'id' => 'auth',
+                    'description' => 'The config for auth.',
+                    'source' => __DIR__ . '/../publish/auth.php',
+                    'destination' => BASE_PATH . '/config/autoload/auth.php',
+                ],
+                [
+                    'id' => 'queue',
                     'description' => 'The config for queue.',
                     'source' => __DIR__ . '/../publish/queue.php',
                     'destination' => BASE_PATH . '/config/autoload/queue.php',
