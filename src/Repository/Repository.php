@@ -101,28 +101,26 @@ abstract class Repository implements RepositoryInterface
     /**
      * @throws BadRequestHttpException
      */
-    public function updateOneBy(array $filter, array $data): array
+    public function updateOneBy(array $filter, array $data): bool
     {
-        $keyName = $this->getModel()->getKeyName();
-        if (empty($keyName)) {
-            throw new ServerErrorHttpException('当前Model没有"primaryKey"，请重写updateOneBy方法');
-        }
-        $result = $this->getInfo($filter);
-        if (empty($result)) {
-            throw new BadRequestHttpException('修改的数据不存在');
+        $filterCount = $this->count($filter);
+        if ($filterCount !== 1) {
+            throw new BadRequestHttpException('数据异常，未找到要修改的数据');
         }
         Db::beginTransaction();
         try {
-            $rows = $this->findQuery()->find($result[$keyName])->update($data);
-            if ($rows > 1) {
-                throw new BadRequestHttpException('当前条件修改了多条数据');
+            $data = $this->setColumnData($data);
+            $data = $this->fillUpdateTimestamp($data);
+            $rows = $this->_filter($this->findQuery(), $filter)->update($data);
+            if ($rows !== 1) {
+                throw new BadRequestHttpException('数据异常，当前方法只允许修改一条数据');
             }
             Db::commit();
         } catch (\Throwable $exception) {
             Db::rollBack();
             throw new BadRequestHttpException($exception->getMessage());
         }
-        return $this->getInfoByID($result[$keyName]);
+        return true;
     }
 
     public function deleteBy(array $filter): int
@@ -137,15 +135,15 @@ abstract class Repository implements RepositoryInterface
      */
     public function deleteOneBy(array $filter): bool
     {
-        $data = $this->getInfo($filter);
-        if (empty($data)) {
-            throw new BadRequestHttpException('删除的数据不存在');
+        $filterCount = $this->count($filter);
+        if ($filterCount !== 1) {
+            throw new BadRequestHttpException('数据异常，未找到要删除的数据');
         }
         Db::beginTransaction();
         try {
-            $rows = $this->findQuery()->find($data[$this->getModel()->getKeyName()])->delete();
-            if ($rows != 1) {
-                throw new BadRequestHttpException('当前条件删除的数据为' . $rows . '条数据，当前方法只能删除一条数据，请修改条件');
+            $rows = $this->_filter($this->findQuery(), $filter)->delete();
+            if ($rows !== 1) {
+                throw new BadRequestHttpException('数据异常，当前方法只允许删除一条数据');
             }
             Db::commit();
         } catch (\Throwable $exception) {
@@ -204,7 +202,7 @@ abstract class Repository implements RepositoryInterface
         return $query->count();
     }
 
-    public function sum(array $filter, string $column)
+    public function sum(array $filter, string $column): int
     {
         $query = $this->findQuery();
         $query = $this->_filter($query, $filter);

@@ -29,7 +29,7 @@ trait ToolsFormatColumn
             }
             $result[$key] = $value;
             if (in_array($key, ['created_at', 'updated_at', 'deleted_at'])) {
-                $result[$key . '_timestamp'] = strtotime($value);
+                $result[$key . '_timestamp'] = empty($value) ? 0 : strtotime($value);
             }
         }
 
@@ -55,10 +55,10 @@ trait ToolsFormatColumn
 
     public function fillTimestamp($result)
     {
-        if (in_array('created_at', $this->getCols()) && isset($result['created_at'])) {
+        if (in_array('created_at', $this->getCols()) && ! isset($result['created_at'])) {
             $result['created_at'] = date('Y-m-d H:i:s');
         }
-        if (in_array('updated_at', $this->getCols()) && isset($result['updated_at'])) {
+        if (in_array('updated_at', $this->getCols()) && ! isset($result['updated_at'])) {
             $result['updated_at'] = date('Y-m-d H:i:s');
         }
 
@@ -67,7 +67,7 @@ trait ToolsFormatColumn
 
     public function fillUpdateTimestamp($result)
     {
-        if (in_array('updated_at', $this->getCols()) && isset($result['updated_at'])) {
+        if (in_array('updated_at', $this->getCols()) && ! isset($result['updated_at'])) {
             $result['updated_at'] = date('Y-m-d H:i:s');
         }
 

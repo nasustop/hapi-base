@@ -32,7 +32,7 @@ interface RepositoryInterface
 
     public function updateBy(array $filter, array $data): int;
 
-    public function updateOneBy(array $filter, array $data): array;
+    public function updateOneBy(array $filter, array $data): bool;
 
     public function deleteBy(array $filter): int;
 
@@ -43,6 +43,8 @@ interface RepositoryInterface
     public function getLists(array $filter, array|string $columns, int $page, int $pageSize, array $orderBy): array;
 
     public function count(array $filter): int;
+
+    public function sum(array $filter, string $column): int;
 
     public function pageLists(array $filter, array|string $columns, int $page, int $pageSize, array $orderBy): array;
 }
