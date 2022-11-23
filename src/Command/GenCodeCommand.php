@@ -43,17 +43,17 @@ class GenCodeCommand extends HyperfCommand
         $bundle = $this->input->getOption('bundle');
         $genModel = new GenModel();
         $modelClass = $genModel->createModel($bundle, $table_name);
-        $this->line("生成文件{$modelClass}", 'success');
+        $this->info("生成文件{$modelClass}");
         $genRepository = new GenRepository();
         $repositoryClass = $genRepository->createRepository($bundle, $table_name);
-        $this->line("生成文件{$repositoryClass}", 'success');
+        $this->info("生成文件{$repositoryClass}");
         $genService = new GenService();
         $serviceClass = $genService->createService($bundle, $table_name);
-        $this->line("生成文件{$serviceClass}", 'success');
+        $this->info("生成文件{$serviceClass}");
         $genFrontedController = new GenController();
         $controllerClass = $genFrontedController->createController($bundle, $table_name, 'Frontend');
-        $this->line("生成文件{$controllerClass}", 'success');
+        $this->info("生成文件{$controllerClass}");
         $controllerClass = $genFrontedController->createController($bundle, $table_name, 'Backend');
-        $this->line("生成文件{$controllerClass}", 'success');
+        $this->info("生成文件{$controllerClass}");
     }
 }

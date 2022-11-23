@@ -11,7 +11,7 @@ class %CLASS% extends %INHERITANCE%
     /**
      * The table associated with the model.
      */
-    protected ?string $table = 'system_user';
+    protected ?string $table = '%TABLE%';
 
     /**
      * The connection name for the model.
@@ -36,5 +36,5 @@ class %CLASS% extends %INHERITANCE%
     /**
      * The attributes that should be cast to native types.
      */
-    protected array $casts = ['user_id' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
+    protected array $casts = [];
 }
