@@ -14,10 +14,10 @@ namespace Nasustop\HapiBase\Auth;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Hyperf\Contract\ConfigInterface;
-use Hyperf\Contract\ContainerInterface;
 use Hyperf\HttpMessage\Exception\UnauthorizedHttpException;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 class JwtFactory
@@ -66,7 +66,7 @@ class JwtFactory
         $this->prefix = $config['prefix'] ?? $this->getConfig(sprintf('auth.%s.jwt.prefix', $this->guard), 'bear');
     }
 
-    public function encode($user): string
+    public function encode(array $user): string
     {
         $timestamp = time();
         $payload = [

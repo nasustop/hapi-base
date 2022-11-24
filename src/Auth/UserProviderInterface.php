@@ -17,5 +17,7 @@ interface UserProviderInterface
 
     public function login(array $inputData): array;
 
+    public function logout(array $payload): bool;
+
     public function setJwtConfig(): array;
 }

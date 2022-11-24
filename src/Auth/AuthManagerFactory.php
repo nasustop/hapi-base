@@ -13,14 +13,14 @@ namespace Nasustop\HapiBase\Auth;
 
 use Psr\Container\ContainerInterface;
 
-abstract class UserProvider implements UserProviderInterface
+class AuthManagerFactory
 {
-    public function __construct(protected ContainerInterface $container, protected string $guard)
+    public function __construct(protected ContainerInterface $container)
     {
     }
 
-    public function setJwtConfig(): array
+    public function guard(string $guard): AuthManager
     {
-        return [];
+        return new AuthManager($this->container, $guard);
     }
 }

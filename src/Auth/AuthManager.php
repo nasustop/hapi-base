@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace Nasustop\HapiBase\Auth;
 
 use Hyperf\Contract\ConfigInterface;
-use Hyperf\Contract\ContainerInterface;
 use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 class AuthManager
@@ -26,29 +26,17 @@ class AuthManager
 
     protected array $payload;
 
-    protected string $guard;
-
-    public function __construct(protected ContainerInterface $container)
+    public function __construct(protected ContainerInterface $container, protected string $guard)
     {
-    }
-
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function guard(string $guard = 'default'): static
-    {
-        $this->guard = $guard;
         $providerName = $this->getConfig("auth.{$guard}.provider");
         if (! class_exists($providerName)) {
             throw new \InvalidArgumentException("auth.{$guard}.provider is not exists");
         }
-        $provider = new $providerName();
+        $provider = new $providerName($this->container, $guard);
         if (! $provider instanceof UserProviderInterface) {
             throw new \InvalidArgumentException("auth.{$guard}.provider is not UserProviderInterface type class");
         }
         $this->userProvider = $provider;
-        return $this;
     }
 
     /**
@@ -57,29 +45,33 @@ class AuthManager
      */
     public function attempt(array $inputData): string
     {
-        if (empty($this->guard)) {
-            $this->guard();
-        }
         $user = $this->userProvider->login($inputData);
         return $this->getJwtFactory()->encode($user);
     }
 
     /**
-     * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function user(): array
     {
-        if (empty($this->guard)) {
-            $this->guard();
-        }
         $payload = $this->payload();
         return $this->userProvider->getInfo($payload);
     }
 
     /**
-     * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function logout(): bool
+    {
+        $payload = $this->payload();
+        return $this->userProvider->logout($payload);
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function payload(): array
     {

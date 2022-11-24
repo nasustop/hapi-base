@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Nasustop\HapiBase;
 
 use Hyperf\HttpServer\CoreMiddleware;
-use Nasustop\HapiBase\Auth\AuthManager;
+use Nasustop\HapiBase\Auth\AuthManagerFactory;
 use Nasustop\HapiBase\Command\GenCodeCommand;
 use Nasustop\HapiBase\HttpServer\Response;
 use Nasustop\HapiBase\HttpServer\ResponseInterface;
@@ -34,7 +34,7 @@ class ConfigProvider
                 Consumer::class => ConsumerFactory::class,
                 Producer::class => Producer::class,
                 CoreMiddleware::class => HapiCoreMiddleware::class,
-                AuthManager::class => AuthManager::class,
+                AuthManagerFactory::class => AuthManagerFactory::class,
             ],
             'commands' => [
                 ConsumerCommand::class,
