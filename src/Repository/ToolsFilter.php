@@ -38,6 +38,9 @@ trait ToolsFilter
             $count === 2 && is_string($filter[0]) => $this->fieldStringFilter($query, $filter[0], $filter[1]),
             $count === 3 && is_string($filter[0]) && is_string($filter[1]) => $this->fieldType($query, $filter[0], $filter[1], $filter[2]),
             $count === 3 && is_array($filter[0]) && is_string($filter[1]) && is_array($filter[2]) => $this->fieldGroup($query, $filter[0], $filter[1], $filter[2]),
+            default => (function ($query) {
+                return $query;
+            })($query)
         };
     }
 
@@ -74,17 +77,17 @@ trait ToolsFilter
                 case 'AND':
                     // $query
                     $query->where(function ($query) use ($field1) {
-                        $this->_filter($query, [$field1]);
+                        $this->_filter($query, $field1);
                     })->where(function ($query) use ($field3) {
-                        $this->_filter($query, [$field3]);
+                        $this->_filter($query, $field3);
                     });
                     break;
                 case 'OR':
                     // $query
                     $query->where(function ($query) use ($field1) {
-                        $this->_filter($query, [$field1]);
+                        $this->_filter($query, $field1);
                     })->orWhere(function ($query) use ($field3) {
-                        $this->_filter($query, [$field3]);
+                        $this->_filter($query, $field3);
                     });
                     break;
             }
