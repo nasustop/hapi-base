@@ -16,6 +16,7 @@ use Nasustop\HapiBase\Auth\AuthManagerFactory;
 use Nasustop\HapiBase\Command\GenCodeCommand;
 use Nasustop\HapiBase\HttpServer\Response;
 use Nasustop\HapiBase\HttpServer\ResponseInterface;
+use Nasustop\HapiBase\Memcached\Memcached;
 use Nasustop\HapiBase\Middleware\CoreMiddleware as HapiCoreMiddleware;
 use Nasustop\HapiBase\Queue\Amqp\Consumer;
 use Nasustop\HapiBase\Queue\Amqp\ConsumerFactory;
@@ -35,6 +36,7 @@ class ConfigProvider
                 Producer::class => Producer::class,
                 CoreMiddleware::class => HapiCoreMiddleware::class,
                 AuthManagerFactory::class => AuthManagerFactory::class,
+                \Memcached::class => Memcached::class,
             ],
             'commands' => [
                 ConsumerCommand::class,
@@ -63,6 +65,12 @@ class ConfigProvider
                     'description' => 'The config for queue.',
                     'source' => __DIR__ . '/../publish/queue.php',
                     'destination' => BASE_PATH . '/config/autoload/queue.php',
+                ],
+                [
+                    'id' => 'memcached',
+                    'description' => 'The config for memcached.',
+                    'source' => __DIR__ . '/../publish/memcached.php',
+                    'destination' => BASE_PATH . '/config/autoload/memcached.php',
                 ],
             ],
         ];
