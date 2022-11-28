@@ -25,6 +25,7 @@ class Producer
 
     public function __construct(protected JobInterface $payload, protected string $queue = 'default')
     {
+        $this->initPayloadQueue();
     }
 
     /**
@@ -33,6 +34,7 @@ class Producer
     public function setPayload(JobInterface $job): self
     {
         $this->payload = $job;
+        $this->initPayloadQueue();
         return $this;
     }
 
@@ -42,6 +44,7 @@ class Producer
     public function onQueue(string $queue): self
     {
         $this->queue = $queue;
+        $this->initPayloadQueue();
         return $this;
     }
 
@@ -57,6 +60,11 @@ class Producer
             default:
                 throw new \InvalidArgumentException('queue.driver config error');
         }
+    }
+
+    protected function initPayloadQueue()
+    {
+        $this->payload = $this->payload->setQueue($this->queue);
     }
 
     protected function dispatcherRedis(): bool

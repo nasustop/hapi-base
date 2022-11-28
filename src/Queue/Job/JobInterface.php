@@ -13,5 +13,9 @@ namespace Nasustop\HapiBase\Queue\Job;
 
 interface JobInterface extends \Hyperf\AsyncQueue\JobInterface
 {
+    public function setQueue(string $queue): self;
+
+    public function getQueue(): string;
+
     public function handle(): string;
 }

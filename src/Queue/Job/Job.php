@@ -35,8 +35,27 @@ abstract class Job implements JobInterface
 
     protected int $attempts = 1;
 
+    protected string $queue;
+
     public function getMaxAttempts(): int
     {
         return $this->attempts;
+    }
+
+    /**
+     * get Queue.
+     */
+    public function getQueue(): string
+    {
+        return $this->queue;
+    }
+
+    /**
+     * set Queue.
+     */
+    public function setQueue(string $queue): self
+    {
+        $this->queue = $queue;
+        return $this;
     }
 }

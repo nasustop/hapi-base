@@ -39,7 +39,7 @@ class ProducerCommand extends HyperfCommand
             'name' => $name,
             'date' => date('Y-m-d H:i:s'),
         ]);
-        (new Producer($job))->onQueue('default')->dispatcher();
+        (new Producer($job))->onQueue('default_delayed_5')->dispatcher();
         $this->info('push job success');
 
         // 安全关闭进程，否则amqp会抛出warning异常

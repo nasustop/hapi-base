@@ -26,21 +26,19 @@ use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\ExceptionHandler\Formatter\FormatterInterface;
 use Hyperf\Logger\LoggerFactory;
-use Hyperf\Utils\ApplicationContext;
+use Nasustop\HapiBase\Queue\Job\JobInterface;
 use Nasustop\HapiBase\Queue\Message\AmqpMessage;
-use Psr\Log\LoggerInterface;
+use Psr\Container\ContainerInterface;
 
 class QueueHandleListener implements ListenerInterface
 {
-    protected LoggerInterface $logger;
-
-    protected StdoutLoggerInterface $stdoutLogger;
-
-    public function __construct(LoggerFactory $loggerFactory, protected FormatterInterface $formatter)
-    {
-        $config = ApplicationContext::getContainer()->get(ConfigInterface::class);
-        $this->logger = $loggerFactory->get($config->get('queue.logger.name', 'queue'), $config->get('queue.logger.group', 'default'));
-        $this->stdoutLogger = ApplicationContext::getContainer()->get(StdoutLoggerInterface::class);
+    public function __construct(
+        protected ContainerInterface $container,
+        protected LoggerFactory $loggerFactory,
+        protected ConfigInterface $config,
+        protected FormatterInterface $formatter,
+        protected StdoutLoggerInterface $stdoutLogger,
+    ) {
     }
 
     public function listen(): array
@@ -58,56 +56,60 @@ class QueueHandleListener implements ListenerInterface
 
     public function process(object $event): void
     {
-        if ($event instanceof Event && $event->getMessage()->job()) {
+        if ($event instanceof Event) {
             $job = $event->getMessage()->job();
-            $jobClass = get_class($job);
-            if ($job instanceof AnnotationJob) {
-                $jobClass = sprintf('Job[%s@%s]', $job->class, $job->method);
-            }
-            $date = date('Y-m-d H:i:s');
-
-            switch (true) {
-                case $event instanceof BeforeHandle:
-                    $this->logger->info(sprintf('[%s] Processing Redis job [%s].', $date, $jobClass));
-                    $this->stdoutLogger->info(sprintf('[%s] Processing Redis job [%s].', $date, $jobClass));
-                    break;
-                case $event instanceof AfterHandle:
-                    $this->logger->info(sprintf('[%s] Processed Redis Job [%s].', $date, $jobClass));
-                    $this->stdoutLogger->info(sprintf('[%s] Processed Redis Job [%s].', $date, $jobClass));
-                    break;
-                case $event instanceof FailedHandle:
-                    $this->logger->error(sprintf('[%s] Failed Redis Job [%s].', $date, $jobClass));
-                    $this->stdoutLogger->error(sprintf('[%s] Failed Redis Job [%s].', $date, $jobClass));
-                    $this->logger->error($this->formatter->format($event->getThrowable()));
-                    $this->stdoutLogger->error($this->formatter->format($event->getThrowable()));
-                    break;
-                case $event instanceof RetryHandle:
-                    $this->logger->warning(sprintf('[%s] Retried Redis Job [%s].', $date, $jobClass));
-                    $this->stdoutLogger->warning(sprintf('[%s] Retried Redis Job [%s].', $date, $jobClass));
-                    break;
-            }
-        }
-        if ($event instanceof ConsumeEvent) {
-            $message = $event->getMessage();
-            if ($message instanceof AmqpMessage) {
-                $job = $message->job();
+            if ($job instanceof JobInterface) {
                 $jobClass = get_class($job);
                 if ($job instanceof AnnotationJob) {
                     $jobClass = sprintf('Job[%s@%s]', $job->class, $job->method);
                 }
                 $date = date('Y-m-d H:i:s');
 
+                $logger = $this->loggerFactory->get($job->getQueue(), $this->config->get('queue.logger', 'default'));
+
+                switch (true) {
+                    case $event instanceof BeforeHandle:
+                        $logger->info(sprintf('[%s] Processing Redis job [%s].', $date, $jobClass));
+                        $this->stdoutLogger->info(sprintf('[%s] Processing Redis job [%s].', $date, $jobClass));
+                        break;
+                    case $event instanceof AfterHandle:
+                        $logger->info(sprintf('[%s] Processed Redis Job [%s].', $date, $jobClass));
+                        $this->stdoutLogger->info(sprintf('[%s] Processed Redis Job [%s].', $date, $jobClass));
+                        break;
+                    case $event instanceof FailedHandle:
+                        $logger->error(sprintf('[%s] Failed Redis Job [%s].', $date, $jobClass));
+                        $this->stdoutLogger->error(sprintf('[%s] Failed Redis Job [%s].', $date, $jobClass));
+                        $logger->error($this->formatter->format($event->getThrowable()));
+                        $this->stdoutLogger->error($this->formatter->format($event->getThrowable()));
+                        break;
+                    case $event instanceof RetryHandle:
+                        $logger->warning(sprintf('[%s] Retried Redis Job [%s].', $date, $jobClass));
+                        $this->stdoutLogger->warning(sprintf('[%s] Retried Redis Job [%s].', $date, $jobClass));
+                        break;
+                }
+            }
+        }
+        if ($event instanceof ConsumeEvent) {
+            if ($event->getMessage() instanceof AmqpMessage && $event->getMessage()->job() instanceof JobInterface) {
+                $job = $event->getMessage()->job();
+                $jobClass = get_class($job);
+                if ($job instanceof AnnotationJob) {
+                    $jobClass = sprintf('Job[%s@%s]', $job->class, $job->method);
+                }
+                $date = date('Y-m-d H:i:s');
+                $logger = $this->loggerFactory->get($job->getQueue(), $this->config->get('queue.logger', 'default'));
+
                 switch (true) {
                     case $event instanceof BeforeConsume:
-                        $this->logger->info(sprintf('[%s] Processing Amqp Job [%s].', $date, $jobClass));
+                        $logger->info(sprintf('[%s] Processing Amqp Job [%s].', $date, $jobClass));
                         $this->stdoutLogger->info(sprintf('[%s] Processing Amqp Job [%s].', $date, $jobClass));
                         break;
                     case $event instanceof AfterConsume:
-                        $this->logger->info(sprintf('[%s] Processed Amqp Job [%s].', $date, $jobClass));
+                        $logger->info(sprintf('[%s] Processed Amqp Job [%s].', $date, $jobClass));
                         $this->stdoutLogger->info(sprintf('[%s] Processed Amqp Job [%s].', $date, $jobClass));
                         break;
                     case $event instanceof FailToConsume:
-                        $this->logger->warning(sprintf('[%s] Failed Amqp Job [%s].', $date, $jobClass));
+                        $logger->warning(sprintf('[%s] Failed Amqp Job [%s].', $date, $jobClass));
                         $this->stdoutLogger->warning(sprintf('[%s] Failed Amqp Job [%s].', $date, $jobClass));
                         break;
                 }

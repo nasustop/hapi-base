@@ -12,10 +12,7 @@ declare(strict_types=1);
 return [
     'driver' => env('QUEUE_DRIVER', 'redis'),
     'open_process' => env('QUEUE_PROCESS', false),
-    'logger' => [
-        'name' => 'queue',
-        'group' => 'default',
-    ],
+    'logger' => 'queue',
     'redis' => [
         'redis' => [
             'pool' => 'default',

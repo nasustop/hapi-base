@@ -90,6 +90,7 @@ class RedisMessage
     {
         $delayQueue = explode('_delayed_', $this->queue);
         $delay = $delayQueue[1] ?? 0;
+        $delay = intval($delay);
 
         return $this->getDriver()->push($this->payload, $delay);
     }
