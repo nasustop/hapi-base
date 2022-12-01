@@ -72,9 +72,12 @@ abstract class Repository implements RepositoryInterface
 
     public function batchInsert(array $data): bool
     {
-        foreach ($data as &$value) {
-            $value = $this->setColumnData($value);
-            $data = $this->fillTimestamp($data);
+        foreach ($data as $key => $value) {
+            if (! is_array($value)) {
+                throw new ServerErrorHttpException('批量添加的数据格式错误');
+            }
+            $data[$key] = $this->setColumnData($value);
+            $data[$key] = $this->fillTimestamp($data[$key]);
         }
         return $this->findQuery()->insert($data);
     }
@@ -214,11 +217,7 @@ abstract class Repository implements RepositoryInterface
         $count = $this->count($filter);
 
         $result['total'] = $count;
-        $list = $this->getLists($filter, $columns, $page, $pageSize, $orderBy);
-        foreach ($list as $key => $value) {
-            $list[$key] = $this->formatColumnData($value);
-        }
-        $result['list'] = $list;
+        $result['list'] = $this->getLists($filter, $columns, $page, $pageSize, $orderBy);
         return $result;
     }
 }
