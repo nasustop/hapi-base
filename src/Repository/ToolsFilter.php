@@ -106,6 +106,7 @@ trait ToolsFilter
             'gte' => '>=',
             'lt' => '<',
             'lte' => '<=',
+            default => $type,
         };
         return match ($type) {
             'in' => $query->whereIn($field, $filter),

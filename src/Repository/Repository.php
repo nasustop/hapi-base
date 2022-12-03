@@ -115,7 +115,7 @@ abstract class Repository implements RepositoryInterface
             $data = $this->setColumnData($data);
             $data = $this->fillUpdateTimestamp($data);
             $rows = $this->_filter($this->findQuery(), $filter)->update($data);
-            if ($rows !== 1) {
+            if ($rows > 1) {
                 throw new BadRequestHttpException('数据异常，当前方法只允许修改一条数据');
             }
             Db::commit();
@@ -145,7 +145,7 @@ abstract class Repository implements RepositoryInterface
         Db::beginTransaction();
         try {
             $rows = $this->_filter($this->findQuery(), $filter)->delete();
-            if ($rows !== 1) {
+            if ($rows > 1) {
                 throw new BadRequestHttpException('数据异常，当前方法只允许删除一条数据');
             }
             Db::commit();
