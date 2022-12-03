@@ -82,6 +82,16 @@ class AuthManager
     }
 
     /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function validateToken(string $token): array
+    {
+        $payload = $this->getJwtFactory()->setToken(new Token($token))->decode();
+        return $this->userProvider->validateToken($payload);
+    }
+
+    /**
      * get JwtFactory.
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface

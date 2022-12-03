@@ -23,4 +23,9 @@ abstract class UserProvider implements UserProviderInterface
     {
         return [];
     }
+
+    public function validateToken(array $payload): array
+    {
+        return $this->getInfo($payload);
+    }
 }

@@ -19,5 +19,7 @@ interface UserProviderInterface
 
     public function logout(array $payload): bool;
 
+    public function validateToken(array $payload): array;
+
     public function setJwtConfig(): array;
 }
