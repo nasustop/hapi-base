@@ -14,6 +14,8 @@ namespace Nasustop\HapiBase;
 use Hyperf\HttpServer\CoreMiddleware;
 use Nasustop\HapiBase\Auth\AuthManagerFactory;
 use Nasustop\HapiBase\Command\GenCodeCommand;
+use Nasustop\HapiBase\HttpServer\Request;
+use Nasustop\HapiBase\HttpServer\RequestInterface;
 use Nasustop\HapiBase\HttpServer\Response;
 use Nasustop\HapiBase\HttpServer\ResponseInterface;
 use Nasustop\HapiBase\Memcached\Memcached;
@@ -31,6 +33,7 @@ class ConfigProvider
     {
         return [
             'dependencies' => [
+                RequestInterface::class => Request::class,
                 ResponseInterface::class => Response::class,
                 Consumer::class => ConsumerFactory::class,
                 Producer::class => Producer::class,

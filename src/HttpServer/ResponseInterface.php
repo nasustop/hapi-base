@@ -11,19 +11,10 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiBase\HttpServer;
 
-use Hyperf\HttpMessage\Cookie\Cookie;
+use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponseInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
-/**
- * @method PsrResponseInterface json(array $data)
- * @method PsrResponseInterface xml(array $data, string $root = 'root')
- * @method PsrResponseInterface raw($data)
- * @method PsrResponseInterface redirect(string $toUrl, int $status = 302, string $schema = 'http')
- * @method PsrResponseInterface download(string $file, string $name = '')
- * @method bool write(string $data)
- * @method ResponseInterface withCookie(Cookie $cookie)
- */
-interface ResponseInterface
+interface ResponseInterface extends HttpResponseInterface
 {
     /**
      * Format data to SUCCESS JSON and return data with Content-Type:application/json header.
