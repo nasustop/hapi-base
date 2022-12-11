@@ -75,7 +75,7 @@ class JwtFactory
             'iat' => $timestamp,
             'exp' => $timestamp + $this->exp,
         ];
-        $payload = array_merge($payload, $user);
+        $payload = array_replace($payload, $user);
         return JWT::encode($payload, $this->secret, $this->alg);
     }
 

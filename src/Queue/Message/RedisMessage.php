@@ -67,7 +67,7 @@ class RedisMessage
     public function getDriver(): RedisDriver
     {
         if (empty($this->driver)) {
-            $this->config = array_merge($this->config, $this->getBaseConfig(sprintf('queue.queue.%s', $this->queue), []));
+            $this->config = array_replace($this->config, $this->getBaseConfig(sprintf('queue.queue.%s', $this->queue), []));
             $this->config['channel'] = $this->config['channel'] ?? sprintf('{%s.queue.%s}', $this->getBaseConfig('app_name'), $this->queue);
             $this->setDriver(make(RedisDriver::class, ['config' => $this->config]));
         }
