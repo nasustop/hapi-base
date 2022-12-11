@@ -35,7 +35,7 @@ abstract class Job implements JobInterface
 
     protected int $attempts = 1;
 
-    protected string $queue;
+    protected string $queue = 'default';
 
     public function getMaxAttempts(): int
     {
