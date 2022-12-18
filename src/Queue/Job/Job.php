@@ -11,6 +11,8 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiBase\Queue\Job;
 
+use Hyperf\HttpMessage\Exception\ServerErrorHttpException;
+
 abstract class Job implements JobInterface
 {
     /**
@@ -57,5 +59,13 @@ abstract class Job implements JobInterface
     {
         $this->queue = $queue;
         return $this;
+    }
+
+    public function run()
+    {
+        $result = $this->handle();
+        if ($result !== self::ACK) {
+            throw new ServerErrorHttpException(sprintf('%s处理失败', self::class));
+        }
     }
 }
