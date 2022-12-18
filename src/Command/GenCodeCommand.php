@@ -33,7 +33,7 @@ class GenCodeCommand extends HyperfCommand
         $this->setDescription('快速生成代码文件');
         $this->addArgument('table_name', InputArgument::REQUIRED, '表名');
         $this->addOption('bundle', 'b', InputOption::VALUE_OPTIONAL, '使用哪一个bundle.', 'SystemBundle');
-        $this->setHelp('php bin/hyperf.php system:gen:code [table_name] [-b=[bundle]]');
+        $this->setHelp('php bin/hyperf.php system:gen:code [table_name] [-b [bundle]]');
         $this->addUsage('[table_name]表名');
     }
 
