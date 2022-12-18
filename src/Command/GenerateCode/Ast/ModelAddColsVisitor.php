@@ -90,6 +90,8 @@ class ModelAddColsVisitor extends NodeVisitorAbstract
                 return 'string';
             case 'json':
                 return 'json';
+            case 'double':
+                return 'float';
             default:
                 return null;
         }
