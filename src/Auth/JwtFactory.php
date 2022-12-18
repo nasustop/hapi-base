@@ -73,9 +73,9 @@ class JwtFactory
             'iss' => $this->iss,
             'aud' => $this->aud,
             'iat' => $timestamp,
-            'exp' => $timestamp + $this->exp,
+            'exp' => $timestamp + 60,
         ];
-        $payload = array_replace($payload, $user);
+        $payload = array_replace($user, $payload);
         return JWT::encode($payload, $this->secret, $this->alg);
     }
 
@@ -83,9 +83,10 @@ class JwtFactory
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
      */
-    public function decode(): array
+    public function decode(int $leeway = 0): array
     {
         $key = new Key($this->secret, $this->alg);
+        JWT::$leeway = $leeway;
         $payloadObj = JWT::decode($this->getToken()->toString(), $key);
         return (array) $payloadObj;
     }

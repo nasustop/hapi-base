@@ -43,10 +43,12 @@ class AuthManager
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function attempt(array $inputData): string
+    public function attempt(array $inputData, bool $refresh = false): string
     {
-        $user = $this->userProvider->login($inputData);
-        return $this->getJwtFactory()->encode($user);
+        if (! $refresh) {
+            $inputData = $this->userProvider->login($inputData);
+        }
+        return $this->getJwtFactory()->encode($inputData);
     }
 
     /**
@@ -73,10 +75,10 @@ class AuthManager
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function payload(): array
+    public function payload(int $leeway = 0): array
     {
         if (empty($this->payload)) {
-            $this->payload = $this->getJwtFactory()->decode();
+            $this->payload = $this->getJwtFactory()->decode($leeway);
         }
         return $this->payload;
     }
