@@ -13,7 +13,6 @@ namespace Nasustop\HapiBase\Command\GenerateCode;
 
 use Hyperf\Utils\CodeGen\Project;
 use Hyperf\Utils\Str;
-use Nasustop\HapiBase\Command\GenerateCode\Ast\ModelAddColsVisitor;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
@@ -48,11 +47,6 @@ class GenRepository extends AbstractGen
         // 应该是用的这个：https://github.com/nikic/PHP-Parser
         // hyperf实现了部分Visitor的代码
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new ModelAddColsVisitor($model, $columns));
-//        $traverser->addVisitor(make(ModelAddColsVisitor::class, [
-//            'class' => $class,
-//            'columns' => $columns,
-//        ]));
         $stms = $traverser->traverse($stms);
         $code = (new Standard())->prettyPrintFile($stms);
 

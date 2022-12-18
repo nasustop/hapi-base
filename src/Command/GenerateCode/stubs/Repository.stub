@@ -13,11 +13,6 @@ class %CLASS% extends Repository
     #[Inject]
     protected %INJECT_CLASS% $model;
 
-    /**
-     * The table all columns.
-     */
-    protected array $cols = [];
-
     public function __call($method, $parameters)
     {
         return $this->getModel()->{$method}(...$parameters);

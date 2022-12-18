@@ -12,10 +12,10 @@ declare(strict_types=1);
 namespace Nasustop\HapiBase\Repository;
 
 use Hyperf\Database\Model\Builder;
-use Hyperf\Database\Model\Model;
 use Hyperf\DbConnection\Db;
 use Hyperf\HttpMessage\Exception\BadRequestHttpException;
 use Hyperf\HttpMessage\Exception\ServerErrorHttpException;
+use Nasustop\HapiBase\Model\Model;
 
 abstract class Repository implements RepositoryInterface
 {
@@ -38,10 +38,7 @@ abstract class Repository implements RepositoryInterface
 
     public function getCols(): array
     {
-        if (! isset($this->cols)) {
-            throw new ServerErrorHttpException('当前repository必须设置cols');
-        }
-        return $this->cols;
+        return $this->getModel()->getCols();
     }
 
     public function findQuery(): Builder
