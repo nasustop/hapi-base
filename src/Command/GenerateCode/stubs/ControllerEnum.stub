@@ -1,0 +1,8 @@
+    public function %ENUM_ACTION_NAME%(): ResponseInterface
+    {
+        $data = $this->service->getRepository()->%ENUM_NAME%();
+        return $this->response->success(data: [
+            'default' => $this->service->getRepository()->%ENUM_DEFAULT_NAME%(),
+            'list' => $data,
+        ]);
+    }

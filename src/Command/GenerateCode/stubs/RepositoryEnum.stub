@@ -1,0 +1,9 @@
+    public function %ENUM_NAME%(): array
+    {
+        return self::%ENUM_CONST_NAME%;
+    }
+
+    public function %ENUM_DEFAULT_NAME%(): string
+    {
+        return self::%ENUM_DEFAULT_CONST_NAME%;
+    }

@@ -125,6 +125,9 @@ abstract class Repository implements RepositoryInterface
 
     public function deleteBy(array $filter): int
     {
+        if (in_array('deleted_at', $this->getCols())) {
+            return $this->updateBy($filter, ['deleted_at' => date('Y-m-d H:i:s')]);
+        }
         $query = $this->findQuery();
         $query = $this->_filter($query, $filter);
         return $query->delete();
@@ -135,6 +138,9 @@ abstract class Repository implements RepositoryInterface
      */
     public function deleteOneBy(array $filter): bool
     {
+        if (in_array('deleted_at', $this->getCols())) {
+            return $this->updateOneBy($filter, ['deleted_at' => date('Y-m-d H:i:s')]);
+        }
         $filterCount = $this->count($filter);
         if ($filterCount !== 1) {
             throw new BadRequestHttpException('数据异常，未找到要删除的数据');
@@ -156,6 +162,9 @@ abstract class Repository implements RepositoryInterface
 
     public function getInfo(array $filter, array|string $columns = '*', array $orderBy = []): array
     {
+        if (in_array('deleted_at', $this->getCols()) && ! in_array('deleted_at', $filter)) {
+            $filter['deleted_at'] = null;
+        }
         $query = $this->findQuery();
         $query = $this->_filter($query, $filter);
         $columns = $this->_columns($columns);
@@ -177,6 +186,9 @@ abstract class Repository implements RepositoryInterface
 
     public function getLists(array $filter = [], array|string $columns = '*', int $page = 0, int $pageSize = 0, array $orderBy = []): array
     {
+        if (in_array('deleted_at', $this->getCols()) && ! in_array('deleted_at', $filter)) {
+            $filter['deleted_at'] = null;
+        }
         $query = $this->findQuery();
         $query = $this->_filter($query, $filter);
         $columns = $this->_columns($columns);
@@ -211,6 +223,9 @@ abstract class Repository implements RepositoryInterface
 
     public function pageLists(array $filter = [], array|string $columns = '*', int $page = 1, int $pageSize = 100, array $orderBy = []): array
     {
+        if (in_array('deleted_at', $this->getCols()) && ! in_array('deleted_at', $filter)) {
+            $filter['deleted_at'] = null;
+        }
         $count = $this->count($filter);
 
         $result['total'] = $count;

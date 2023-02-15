@@ -26,16 +26,27 @@ class GenController extends AbstractGen
         $connection = $this->getSchemaBuilder($this->pool)->getConnection();
         $columns = $this->getColumnTypeListing($connection, $table);
         $requiredColumns = [];
+        $priKey = '';
+        $enumColumns = [];
         foreach ($columns as $column) {
             if ($column['is_nullable'] == 'YES') {
                 continue;
             }
             if ($column['column_key'] == 'PRI') {
+                $priKey = $column['column_name'];
                 continue;
+            }
+            if ($column['data_type'] == 'enum') {
+                $enum_string = ltrim(rtrim($column['column_type'], ')'), 'enum(');
+                $enum_data = explode(',', $enum_string);
+                array_walk($enum_data, function (&$value) {
+                    $value = trim($value, "'");
+                });
+                $enumColumns[$column['column_name']] = $enum_data;
             }
             $requiredColumns[] = $column['column_name'];
         }
-        return $this->putCodeToFile($bundle, $table, $requiredColumns, $type);
+        return $this->putCodeToFile($bundle, $table, $priKey, $requiredColumns, $enumColumns, $type);
     }
 
     /**
@@ -63,7 +74,7 @@ class GenController extends AbstractGen
         return $processor->processListing($results);
     }
 
-    protected function putCodeToFile(string $bundle, string $table, array $requiredColumns, string $type = 'Frontend'): string
+    protected function putCodeToFile(string $bundle, string $table, string $priKey, array $requiredColumns, array $enumColumns, string $type = 'Frontend'): string
     {
         $service = $this->genNamespace($bundle, $table, 'Service');
         $project = new Project();
@@ -81,6 +92,8 @@ class GenController extends AbstractGen
         // 替换模板基础数据并填充到文件中
         $stubs = $this->buildClass($class, $service);
         $stubs = $this->replaceControllerCreateValidator($stubs, $requiredColumns);
+        $stubs = $this->replaceControllerUpdateValidator($stubs, $priKey, $requiredColumns);
+        $stubs = $this->replaceControllerEnumAction($stubs, $enumColumns);
         file_put_contents($path, $stubs);
 
         return $class;
@@ -101,7 +114,7 @@ class GenController extends AbstractGen
             ->replaceInjectClass($stub, $service_class);
     }
 
-    protected function replaceControllerCreateValidator($stub, $columns): array|string
+    protected function replaceControllerCreateValidator(string $stub, array $columns): array|string
     {
         if (empty($columns)) {
             return str_replace('%CONTROLLER_CREATE_VALIDATOR%', '', $stub);
@@ -121,5 +134,61 @@ class GenController extends AbstractGen
         $code .= "\t\t\tthrow new BadRequestHttpException(message: \$validator->errors()->first());\n";
         $code .= "\t\t}";
         return str_replace('%CONTROLLER_CREATE_VALIDATOR%', $code, $stub);
+    }
+
+    protected function replaceControllerUpdateValidator(string $stub, string $priKey, array $columns): array|string
+    {
+        if (empty($columns)) {
+            return str_replace('%CONTROLLER_UPDATE_VALIDATOR%', '', $stub);
+        }
+        $code = "\$rules = [\n";
+        $code .= "\t\t\t'filter' => 'required|array',\n";
+        $code .= "\t\t\t'filter.{$priKey}' => 'required',\n";
+        $code .= "\t\t\t'params' => 'required|array',\n";
+        foreach ($columns as $column) {
+            $code .= "\t\t\t'params.{$column}' => 'required',\n";
+        }
+        $code .= "\t\t];\n";
+        $code .= "\t\t\$messages = [\n";
+        $code .= "\t\t\t'filter.required' => 'filter 参数必填',\n";
+        $code .= "\t\t\t'filter.array' => 'filter 参数错误，必须是数组格式',\n";
+        $code .= "\t\t\t'filter.{$priKey}.required' => 'filter.{$priKey} 参数必填',\n";
+        $code .= "\t\t\t'params.required' => 'filter 参数必填',\n";
+        $code .= "\t\t\t'params.array' => 'filter 参数错误，必须是数组格式',\n";
+        foreach ($columns as $column) {
+            $code .= "\t\t\t'params.{$column}.required' => 'params.{$column} 参数必填',\n";
+        }
+        $code .= "\t\t];\n";
+        $code .= "\t\t\$validator = \$this->validatorFactory->make(data: \$params, rules: \$rules, messages: \$messages);\n\n";
+        $code .= "\t\tif (\$validator->fails()) {\n";
+        $code .= "\t\t\tthrow new BadRequestHttpException(message: \$validator->errors()->first());\n";
+        $code .= "\t\t}";
+        return str_replace('%CONTROLLER_UPDATE_VALIDATOR%', $code, $stub);
+    }
+
+    protected function replaceControllerEnumAction(string $stub, array $enumColumns): array|string
+    {
+        $code = "\n";
+        // 获取基础内容
+        $enum_stub = file_get_contents(__DIR__ . '/stubs/ControllerEnum.stub');
+        foreach ($enumColumns as $name => $value) {
+            $enum_stub_str = $enum_stub;
+            $column_name = 'ENUM_' . strtoupper($name);
+            $actionName = $this->convertUnderline('action_' . strtolower($column_name), false);
+            $functionColumn = $this->convertUnderline(strtolower($column_name), false);
+            $functionColumnDefault = $this->convertUnderline(strtolower("{$column_name}_DEFAULT"), false);
+            $enum_stub_str = str_replace('%ENUM_ACTION_NAME%', $actionName, $enum_stub_str);
+            $enum_stub_str = str_replace('%ENUM_NAME%', $functionColumn, $enum_stub_str);
+            $enum_stub_str = str_replace('%ENUM_DEFAULT_NAME%', $functionColumnDefault, $enum_stub_str);
+            $code .= $enum_stub_str;
+        }
+        return str_replace('%CONTROLLER_ENUM_ACTION%', $code, $stub);
+    }
+
+    protected function convertUnderline($str, $ucfirst = true): array|string
+    {
+        $str = ucwords(str_replace('_', ' ', $str));
+        $str = str_replace(' ', '', lcfirst($str));
+        return $ucfirst ? ucfirst($str) : $str;
     }
 }

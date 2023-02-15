@@ -15,6 +15,8 @@ class %CLASS% extends AbstractController
     #[Inject]
     protected %INJECT_CLASS% $service;
 
+    %CONTROLLER_ENUM_ACTION%
+
     public function actionCreate(): ResponseInterface
     {
         $params = $this->request->all();
@@ -37,21 +39,8 @@ class %CLASS% extends AbstractController
     public function actionUpdate(): ResponseInterface
     {
         $params = $this->request->all();
-        $rules = [
-            'filter' => 'required|array',
-            'params' => 'required|array',
-        ];
-        $messages = [
-            'filter.required' => 'filter 参数必填',
-            'params.required' => 'params 参数必填',
-            'filter.array' => 'filter 参数错误，必须是数组格式',
-            'params.array' => 'params 参数错误，必须是数组格式',
-        ];
-        $validator = $this->validatorFactory->make(data: $params, rules: $rules, messages: $messages);
 
-        if ($validator->fails()) {
-            throw new BadRequestHttpException(message: $validator->errors()->first());
-        }
+        %CONTROLLER_UPDATE_VALIDATOR%
 
         $result = $this->service->updateOneBy(filter: $params['filter'], data: $params['params']);
 

@@ -13,9 +13,6 @@ namespace Nasustop\HapiBase\Command\GenerateCode;
 
 use Hyperf\Utils\CodeGen\Project;
 use Hyperf\Utils\Str;
-use PhpParser\NodeTraverser;
-use PhpParser\ParserFactory;
-use PhpParser\PrettyPrinter\Standard;
 
 class GenRepository extends AbstractGen
 {
@@ -36,22 +33,13 @@ class GenRepository extends AbstractGen
         }
         // 替换模板基础数据并填充到文件中
         $stubs = $this->buildClass($table, $class, $model);
-        file_put_contents($path, $stubs);
 
         $builder = $this->getSchemaBuilder($this->pool);
         // 获取某张表的表结构数组,并将这个结构数组的key转成小写[基本用不到]
         $columns = $this->formatColumns($builder->getColumnTypeListing($table));
+        $stubs = $this->replaceConstEnum($columns, $stubs);
 
-        $stms = (new ParserFactory())->create(ParserFactory::ONLY_PHP7)->parse(file_get_contents($path));
-        // 将文件解析到抽象语法树类上面。
-        // 应该是用的这个：https://github.com/nikic/PHP-Parser
-        // hyperf实现了部分Visitor的代码
-        $traverser = new NodeTraverser();
-        $stms = $traverser->traverse($stms);
-        $code = (new Standard())->prettyPrintFile($stms);
-
-        file_put_contents($path, $code);
-
+        file_put_contents($path, $stubs);
         return $class;
     }
 
@@ -68,5 +56,54 @@ class GenRepository extends AbstractGen
             ->replaceUses($stub, $model)
             ->replaceClass($stub, $name)
             ->replaceInjectClass($stub, $model_class);
+    }
+
+    protected function replaceConstEnum(array $columns, string $stubs): array|string
+    {
+        $enumColumns = [];
+        foreach ($columns as $column) {
+            if ($column['data_type'] == 'enum') {
+                $enum_string = ltrim(rtrim($column['column_type'], ')'), 'enum(');
+                $enum_data = explode(',', $enum_string);
+                array_walk($enum_data, function (&$value) {
+                    $value = trim($value, "'");
+                });
+                $enumColumns[$column['column_name']] = $enum_data;
+            }
+        }
+        // 获取基础内容
+        $enum_stub = file_get_contents(__DIR__ . '/stubs/RepositoryEnum.stub');
+        $code = "\n";
+        foreach ($enumColumns as $name => $value) {
+            $column_name = 'ENUM_' . strtoupper($name);
+            $column_enum_str = '';
+            $default_column = '';
+            foreach ($value as $vv) {
+                $vv_name = $column_name . '_' . strtoupper($vv);
+                if (empty($default_column)) {
+                    $default_column = $vv_name;
+                }
+                $code .= "\tpublic const {$vv_name} = '{$vv}';\n";
+                $column_enum_str .= "self::{$vv_name} => '{$vv}',";
+            }
+            $column_enum_str = rtrim($column_enum_str, ',');
+            $code .= "\tpublic const {$column_name} = [{$column_enum_str}];\n";
+            $code .= "\tpublic const {$column_name}_DEFAULT = self::{$default_column};\n";
+            $functionColumn = $this->convertUnderline(strtolower($column_name), false);
+            $functionColumnDefault = $this->convertUnderline(strtolower("{$column_name}_DEFAULT"), false);
+            $enum_stub = str_replace('%ENUM_NAME%', $functionColumn, $enum_stub);
+            $enum_stub = str_replace('%ENUM_CONST_NAME%', $column_name, $enum_stub);
+            $enum_stub = str_replace('%ENUM_DEFAULT_NAME%', $functionColumnDefault, $enum_stub);
+            $enum_stub = str_replace('%ENUM_DEFAULT_CONST_NAME%', "{$column_name}_DEFAULT", $enum_stub);
+            $code .= $enum_stub;
+        }
+        return str_replace('%REPOSITORY_ENUM%', $code, $stubs);
+    }
+
+    protected function convertUnderline($str, $ucfirst = true): array|string
+    {
+        $str = ucwords(str_replace('_', ' ', $str));
+        $str = str_replace(' ', '', lcfirst($str));
+        return $ucfirst ? ucfirst($str) : $str;
     }
 }
