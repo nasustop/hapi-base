@@ -20,6 +20,7 @@ return [
             'iss' => env('JWT_ISS', 'hapi'),
             'aud' => env('JWT_AUD', 'hapi'),
             'exp' => env('JWT_EXPIRED', 7200),
+            'leeway' => env('JWT_LEEWAY', 300),
             'header' => env('JWT_HEADER', 'authorization'),
             'prefix' => env('JWT_PREFIX', 'bear'),
         ],
