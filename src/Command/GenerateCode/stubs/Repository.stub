@@ -10,6 +10,7 @@ use Hyperf\Di\Annotation\Inject;
 
 class %CLASS% extends Repository
 {
+    %REPOSITORY_ENUM%
     #[Inject]
     protected %INJECT_CLASS% $model;
 
