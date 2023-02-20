@@ -6,7 +6,7 @@
         "php",
         "hyperf"
     ],
-    "description": "hapi基础组件",
+    "description": "",
     "autoload": {
         "psr-4": {
             "Nasustop\\HapiBase\\": "src/"
@@ -18,16 +18,7 @@
         }
     },
     "require": {
-        "php": ">=8.0",
-        "firebase/php-jwt": "^6.3",
-        "hyperf/amqp": "~3.0.0",
-        "hyperf/async-queue": "~3.0.0",
-        "hyperf/cache": "~3.0.0",
-        "hyperf/database": "~3.0.0",
-        "hyperf/db-connection": "~3.0.0",
-        "hyperf/http-server": "~3.0.0",
-        "hyperf/logger": "~3.0.0",
-        "hyperf/redis": "~3.0.0"
+        "php": ">=8.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
@@ -37,8 +28,7 @@
         "swoole/ide-helper": "^4.5"
     },
     "suggest": {
-        "swow/swow": "Required to create swow components.",
-        "ext-memcached": "*"
+        "swow/swow": "Required to create swow components."
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -54,12 +44,6 @@
     "extra": {
         "hyperf": {
             "config": "Nasustop\\HapiBase\\ConfigProvider"
-        }
-    },
-    "repositories": {
-        "packagist": {
-            "type": "composer",
-            "url": "https://mirrors.aliyun.com/composer/"
         }
     }
 }
