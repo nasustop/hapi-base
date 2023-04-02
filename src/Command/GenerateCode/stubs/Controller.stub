@@ -1,0 +1,76 @@
+<?php
+
+declare(strict_types=1);
+
+namespace %NAMESPACE%;
+
+use App\Controller\AbstractController;
+use Hyperf\HttpMessage\Exception\BadRequestHttpException;
+use Psr\Http\Message\ResponseInterface;
+%USES%
+
+class %CLASS% extends AbstractController
+{
+    protected %INJECT_CLASS% $service;
+
+    %CONTROLLER_ENUM_ACTION%
+
+    public function actionCreate(): ResponseInterface
+    {
+        $params = $this->getRequest()->all();
+
+        %CONTROLLER_CREATE_VALIDATOR%
+
+        $result = $this->getService()->saveData(data: $params);
+
+        return $this->getResponse()->success(data: $result);
+    }
+
+    public function actionInfo(): ResponseInterface
+    {
+        $filter = $this->getRequest()->all();
+        $result = $this->getService()->getInfo(filter: $filter);
+
+        return $this->getResponse()->success(data: $result);
+    }
+
+    public function actionUpdate(): ResponseInterface
+    {
+        $params = $this->getRequest()->all();
+
+        %CONTROLLER_UPDATE_VALIDATOR%
+
+        $result = $this->getService()->updateOneBy(filter: $params['filter'], data: $params['params']);
+
+        return $this->getResponse()->success(data: $result);
+    }
+
+    public function actionDelete(): ResponseInterface
+    {
+        $filter = $this->getRequest()->all();
+        $result = $this->getService()->deleteOneBy(filter: $filter);
+
+        return $this->getResponse()->success(data: $result);
+    }
+
+    public function actionList(): ResponseInterface
+    {
+        $filter = $this->getRequest()->all();
+        $page = (int) $this->getRequest()->input(key: 'page', default: 1);
+        $page_size = (int) $this->getRequest()->input(key: 'page_size', default: 20);
+        $result = $this->getService()->pageLists(filter: $filter, columns: '*', page: $page, pageSize: $page_size);
+
+        return $this->getResponse()->success(data: $result);
+    }
+
+    /**
+     * get Service.
+     */
+    protected function getService(): %INJECT_CLASS%
+    {
+        if (empty($this->service)) {
+            $this->service = $this->getContainer()->get(%INJECT_CLASS%::class);
+        }
+        return $this->service;
+    }
+}

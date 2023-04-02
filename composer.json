@@ -18,7 +18,16 @@
         }
     },
     "require": {
-        "php": ">=8.0"
+        "php": ">=8.0",
+        "hyperf/cache": "^3.0",
+        "hyperf/command": "^3.0",
+        "hyperf/contract": "^3.0",
+        "hyperf/crontab": "^3.0",
+        "hyperf/database": "^3.0",
+        "hyperf/db-connection": "^3.0",
+        "hyperf/http-server": "^3.0",
+        "hyperf/redis": "^3.0",
+        "nasustop/hapi-memcached": "dev-master"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
@@ -44,6 +53,12 @@
     "extra": {
         "hyperf": {
             "config": "Nasustop\\HapiBase\\ConfigProvider"
+        }
+    },
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://mirrors.aliyun.com/composer/"
         }
     }
 }

@@ -1,0 +1,30 @@
+<?php
+
+declare(strict_types=1);
+
+namespace %NAMESPACE%;
+
+use App\Repository\Repository;
+%USES%
+
+class %CLASS% extends Repository
+{
+    %REPOSITORY_ENUM%
+    protected %INJECT_CLASS% $model;
+
+    public function __call($method, $parameters)
+    {
+        return $this->getModel()->{$method}(...$parameters);
+    }
+
+    /**
+     * get Model.
+     */
+    public function getModel(): %INJECT_CLASS%
+    {
+        if (empty($this->model)) {
+            $this->model = container()->get(%INJECT_CLASS%::class);
+        }
+        return $this->model;
+    }
+}
