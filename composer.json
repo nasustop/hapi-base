@@ -2,6 +2,7 @@
     "name": "nasustop/hapi-base",
     "type": "library",
     "license": "MIT",
+    "version": "1.0.1",
     "keywords": [
         "php",
         "hyperf"
@@ -25,9 +26,7 @@
         "hyperf/crontab": "^3.0",
         "hyperf/database": "^3.0",
         "hyperf/db-connection": "^3.0",
-        "hyperf/http-server": "^3.0",
-        "hyperf/redis": "^3.0",
-        "nasustop/hapi-memcached": "~1.0.0"
+        "hyperf/http-server": "^3.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
