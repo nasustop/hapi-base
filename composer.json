@@ -2,7 +2,7 @@
     "name": "nasustop/hapi-base",
     "type": "library",
     "license": "MIT",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "keywords": [
         "php",
         "hyperf"

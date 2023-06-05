@@ -11,6 +11,8 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiBase\HttpServer;
 
+use Hyperf\HttpServer\Router\Dispatched;
+
 class Request extends \Hyperf\HttpServer\Request implements RequestInterface
 {
     /**
@@ -34,14 +36,9 @@ class Request extends \Hyperf\HttpServer\Request implements RequestInterface
      */
     public function getRequestApiAlias(): string
     {
-        $attributes = $this->getAttributes();
-        $api_alias = '';
-        $router = $attributes['Hyperf\HttpServer\Router\Dispatched'] ?? null;
-        if ($router instanceof \Hyperf\HttpServer\Router\Dispatched) {
-            $api_alias = $router->handler->options['alias'] ?? '';
-        }
-
-        return $api_alias;
+        /* @var Dispatched $dispatched */
+        $dispatched = $this->getAttribute(Dispatched::class);
+        return $dispatched->handler->options['alias'] ?? '';
     }
 
     /**
@@ -49,13 +46,8 @@ class Request extends \Hyperf\HttpServer\Request implements RequestInterface
      */
     public function getRequestApiName(): string
     {
-        $attributes = $this->getAttributes();
-        $api_name = '';
-        $router = $attributes['Hyperf\HttpServer\Router\Dispatched'] ?? null;
-        if ($router instanceof \Hyperf\HttpServer\Router\Dispatched) {
-            $api_name = $router->handler->options['name'] ?? '';
-        }
-
-        return $api_name;
+        /* @var Dispatched $dispatched */
+        $dispatched = $this->getAttribute(Dispatched::class);
+        return $dispatched->handler->options['name'] ?? '';
     }
 }

@@ -11,6 +11,7 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiBase\Middleware;
 
+use Hyperf\HttpServer\Router\Dispatched;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -31,10 +32,10 @@ class CoreMiddleware extends \Hyperf\HttpServer\CoreMiddleware
 
     protected function addRouteAlias(ServerRequestInterface $request): ServerRequestInterface
     {
-        $attributes = $request->getAttributes();
-        $attributes = @json_decode(json_encode($attributes), true);
-        $alias = $attributes ? ($attributes['Hyperf\HttpServer\Router\Dispatched']['handler']['options']['alias'] ?? '') : '';
-        $name = $attributes ? ($attributes['Hyperf\HttpServer\Router\Dispatched']['handler']['options']['name'] ?? '') : '';
+        /* @var Dispatched $dispatched */
+        $dispatched = $request->getAttribute(Dispatched::class);
+        $alias = $dispatched->handler->options['alias'] ?? '';
+        $name = $dispatched->handler->options['name'] ?? '';
         // 获取路由文件中设置的别名和名称
         return $request->withAttribute('route.alias', $alias)->withAttribute('route.name', $name);
     }
