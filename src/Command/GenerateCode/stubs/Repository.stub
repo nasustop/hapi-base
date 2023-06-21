@@ -23,7 +23,7 @@ class %CLASS% extends Repository
     public function getModel(): %INJECT_CLASS%
     {
         if (empty($this->model)) {
-            $this->model = container()->get(%INJECT_CLASS%::class);
+            $this->model = make(%INJECT_CLASS%::class);
         }
         return $this->model;
     }

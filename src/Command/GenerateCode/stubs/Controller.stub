@@ -69,7 +69,7 @@ class %CLASS% extends AbstractController
     protected function getService(): %INJECT_CLASS%
     {
         if (empty($this->service)) {
-            $this->service = $this->getContainer()->get(%INJECT_CLASS%::class);
+            $this->service = make(%INJECT_CLASS%::class);
         }
         return $this->service;
     }

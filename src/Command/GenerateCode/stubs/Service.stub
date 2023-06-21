@@ -34,7 +34,7 @@ class %CLASS%
     public function getRepository(): %INJECT_CLASS%
     {
         if (empty($this->repository)) {
-            $this->repository = container()->get(%INJECT_CLASS%::class);
+            $this->repository = make(%INJECT_CLASS%::class);
         }
         return $this->repository;
     }
