@@ -11,8 +11,8 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiBase\Command\GenerateCode;
 
-use Hyperf\Utils\CodeGen\Project;
-use Hyperf\Utils\Str;
+use Hyperf\CodeParser\Project;
+use Hyperf\Stringable\Str;
 
 class GenRepository extends AbstractGen
 {

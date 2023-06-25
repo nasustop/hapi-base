@@ -11,12 +11,12 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiBase\Command\GenerateCode;
 
+use Hyperf\CodeParser\Project;
 use Hyperf\Database\Commands\Ast\ModelRewriteConnectionVisitor;
 use Hyperf\Database\Commands\Ast\ModelUpdateVisitor;
 use Hyperf\Database\Commands\ModelData;
 use Hyperf\Database\Commands\ModelOption;
-use Hyperf\Utils\CodeGen\Project;
-use Hyperf\Utils\Str;
+use Hyperf\Stringable\Str;
 use Nasustop\HapiBase\Command\GenerateCode\Ast\ModelAddColsVisitor;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;

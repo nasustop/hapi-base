@@ -11,10 +11,10 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiBase\Command\GenerateCode;
 
+use Hyperf\CodeParser\Project;
 use Hyperf\Database\Connection;
 use Hyperf\Database\Query\Processors\MySqlProcessor;
-use Hyperf\Utils\CodeGen\Project;
-use Hyperf\Utils\Str;
+use Hyperf\Stringable\Str;
 
 class GenController extends AbstractGen
 {

@@ -60,7 +60,6 @@ class ModelAddColsVisitor extends NodeVisitorAbstract
             $type = $this->formatDatabaseType($column['data_type']);
             if ($type) {
                 $items[] = new Node\Expr\ArrayItem(
-//                    new Node\Scalar\String_($type),
                     new Node\Scalar\String_($name)
                 );
             }

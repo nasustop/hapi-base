@@ -11,12 +11,11 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiBase\Command\GenerateCode;
 
+use Hyperf\CodeParser\Project;
 use Hyperf\Database\ConnectionResolverInterface;
 use Hyperf\Database\Model\Model;
 use Hyperf\Database\Schema\Builder;
-use Hyperf\Utils\ApplicationContext;
-use Hyperf\Utils\CodeGen\Project;
-use Hyperf\Utils\Str;
+use Hyperf\Stringable\Str;
 
 abstract class AbstractGen
 {
@@ -40,7 +39,7 @@ abstract class AbstractGen
      */
     protected function getSchemaBuilder(string $poolName): Builder
     {
-        $resolver = ApplicationContext::getContainer()->get(ConnectionResolverInterface::class);
+        $resolver = make(ConnectionResolverInterface::class);
         $connection = $resolver->connection($poolName);
         return $connection->getSchemaBuilder();
     }
