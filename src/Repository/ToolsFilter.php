@@ -18,80 +18,65 @@ trait ToolsFilter
     protected function _filter(Builder $query, array $filters): Builder
     {
         foreach ($filters as $field => $filter) {
-            switch (true) {
-                case is_int($field) && is_array($filter):
-                    // 如果field是int，则filter则必须是数组
-                    $query = $this->fieldIntFilter($query, $filter);
-                    break;
-                case is_string($field):
-                    $query = $this->fieldStringFilter($query, $field, $filter);
-                    break;
+            if (is_string($field)) {
+                // string下标处理
+                $query = $this->fieldStringFilter($query, $field, $filter);
+            } elseif (is_int($field) && is_array($filter)) {
+                // int下标处理
+                $query = $query->where(function ($query) use ($filter) {
+                    $this->_filter($query, $filter);
+                });
             }
         }
         return $query;
-    }
-
-    protected function fieldIntFilter(Builder $query, array $filter): Builder
-    {
-        $count = count($filter);
-        return match (true) {
-            $count === 2 && is_string($filter[0]) => $this->fieldStringFilter($query, $filter[0], $filter[1]),
-            $count === 3 && is_string($filter[0]) && is_string($filter[1]) => $this->fieldType($query, $filter[0], $filter[1], $filter[2]),
-            $count === 3 && is_array($filter[0]) && is_string($filter[1]) && is_array($filter[2]) => $this->fieldGroup($query, $filter[0], $filter[1], $filter[2]),
-            default => (function ($query) {
-                return $query;
-            })($query)
-        };
     }
 
     protected function fieldStringFilter(Builder $query, string $field, $filter): Builder
     {
         $fields = explode('|', $field);
         $count = count($fields);
-        switch (true) {
-            case $count === 1:
-                if (! empty($this->getCols()) && ! in_array($field, $this->getCols())) {
-                    return $query;
+        if ($count === 2) {
+            return $this->fieldType($query, $fields[0], $fields[1], $filter);
+        }
+        if ($count !== 1) {
+            return $query;
+        }
+        // 下标是数据表字段
+        if (! empty($this->getCols()) && in_array($field, $this->getCols())) {
+            if (is_array($filter)) {
+                $query = $query->whereIn($field, $filter);
+            } else {
+                $query = $query->where($field, $filter);
+            }
+            return $query;
+        }
+        $field = strtoupper($field);
+        if ($field == 'AND' && is_array($filter)) {
+            $query = $query->where(function ($query) use ($filter) {
+                foreach ($filter as $key => $value) {
+                    $query = $query->where(function ($query) use ($key, $value) {
+                        if (is_string($key)) {
+                            $this->fieldStringFilter($query, $key, $value);
+                        } elseif (is_int($key) && is_array($value)) {
+                            $this->_filter($query, $value);
+                        }
+                    });
                 }
-                // 检测filter是否是数组
-                if (is_array($filter)) {
-                    $query = $query->whereIn($field, $filter);
-                } else {
-                    $query = $query->where($field, $filter);
+            });
+        } elseif ($field == 'OR' && is_array($filter)) {
+            $query = $query->where(function ($query) use ($filter) {
+                foreach ($filter as $key => $value) {
+                    $query = $query->orWhere(function ($query) use ($key, $value) {
+                        if (is_string($key)) {
+                            $this->fieldStringFilter($query, $key, $value);
+                        } elseif (is_int($key) && is_array($value)) {
+                            $this->_filter($query, $value);
+                        }
+                    });
                 }
-                break;
-            case $count === 2 && is_string($fields[0]) && is_string($fields[1]):
-                $query = $this->fieldType($query, $fields[0], $fields[1], $filter);
-                break;
+            });
         }
         return $query;
-    }
-
-    protected function fieldGroup(Builder $query, array $field1, string $field2, array $field3): Builder
-    {
-        // 分组查询
-        $field2 = strtoupper($field2);
-        return $query->where(function ($query) use ($field1, $field2, $field3) {
-            // 分组查询暂时只处理`and`和`or`两种情况
-            switch ($field2) {
-                case 'AND':
-                    // $query
-                    $query->where(function ($query) use ($field1) {
-                        $this->_filter($query, $field1);
-                    })->where(function ($query) use ($field3) {
-                        $this->_filter($query, $field3);
-                    });
-                    break;
-                case 'OR':
-                    // $query
-                    $query->where(function ($query) use ($field1) {
-                        $this->_filter($query, $field1);
-                    })->orWhere(function ($query) use ($field3) {
-                        $this->_filter($query, $field3);
-                    });
-                    break;
-            }
-        });
     }
 
     protected function fieldType(Builder $query, string $field, string $type, $filter): \Hyperf\Database\Query\Builder|Builder

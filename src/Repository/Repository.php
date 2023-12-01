@@ -248,4 +248,49 @@ abstract class Repository implements RepositoryInterface
         $result['list'] = $this->getLists($filter, $columns, $page, $pageSize, $orderBy);
         return $result;
     }
+
+    public function beginTransaction()
+    {
+        Db::beginTransaction();
+    }
+
+    public function rollBack()
+    {
+        Db::rollBack();
+    }
+
+    public function commit()
+    {
+        Db::commit();
+    }
+
+    public function transaction(\Closure $callback, int $attempts = 1)
+    {
+        Db::transaction($callback, $attempts);
+    }
+
+    public function rawSelect(string $query): array
+    {
+        return Db::select($query);
+    }
+
+    public function rawSelectOne(string $query): array
+    {
+        return Db::selectOne($query);
+    }
+
+    public function rawInsert(string $query): bool
+    {
+        return Db::insert($query);
+    }
+
+    public function rawUpdate(string $query): int
+    {
+        return Db::update($query);
+    }
+
+    public function rawDelete(string $query): int
+    {
+        return Db::delete($query);
+    }
 }
