@@ -219,7 +219,7 @@ abstract class AbstractGen
 
     protected function genNamespace(string $bundle, string $table, string $type = 'Model'): string
     {
-        if (! in_array($type, ['Model', 'Repository', 'Service'])) {
+        if (! in_array($type, ['Model', 'Repository', 'Service', 'Template'])) {
             throw new \InvalidArgumentException('type类型错误');
         }
         $project = new Project();

@@ -1,0 +1,138 @@
+<?php
+
+declare(strict_types=1);
+
+namespace %NAMESPACE%;
+
+use Nasustop\HapiBase\Template\Template;
+
+class %CLASS% extends Template
+{
+    /**
+     * 表格数据的来源URL.
+     */
+    public function getTableApiUri(): string
+    {
+        return '';
+    }
+
+    /**
+     * 添加按钮的URL，一般为vue页面的path.
+     */
+    public function getTableHeaderCreateActionUri(): string
+    {
+        return '';
+    }
+
+    /**
+     * 修改按钮的URL，一般为vue页面的path.
+     */
+    public function getTableColumnUpdateActionUri(): string
+    {
+        return '';
+    }
+
+    /**
+     * 表格操作按钮中的删除按钮的URL.
+     */
+    public function getTableColumnDeleteActionUri(): string
+    {
+        return '';
+    }
+
+    /**
+     * 创建表单的保存按钮URL.
+     */
+    public function getCreateFormSaveApiUri(): string
+    {
+        return '';
+    }
+
+    /**
+     * 修改表单初始化获取数据的URL.
+     */
+    public function getUpdateFormInfoApiUri(): string
+    {
+        return '';
+    }
+
+    /**
+     * 修改表单保存按钮的URL.
+     */
+    public function getUpdateFormSaveApiUri(): string
+    {
+        return '';
+    }
+
+    /**
+     * 表格的key.
+     */
+    public function getTableKey(): string
+    {
+        return '%TABLE_KEY%';
+    }
+
+    /**
+     * 表格的顶部搜索项.
+     */
+    public function getTableHeaderFilter(): array
+    {
+        return [%TABLE_HEADER_FILTER%];
+    }
+
+    /**
+     * 表格字段集合.
+     */
+    public function getTableColumns(): array
+    {
+        return [%TABLE_COLUMNS%];
+    }
+
+    /**
+     * 创建表单字段集合.
+     */
+    public function getCreateFormColumns(): array
+    {
+        return [%FORM_CREATE_COLUMNS%];
+    }
+
+    /**
+     * 创建表单提交字段默认值集合.
+     */
+    public function getCreateFormRuleForm(): array
+    {
+        return [%FORM_CREATE_RULE_FORM%];
+    }
+
+    /**
+     * 创建表单字段验证规则结合.
+     */
+    public function getCreateFormRules(): array
+    {
+        return [%FORM_CREATE_RULES%];
+    }
+
+    /**
+     * 修改表单字段集合.
+     */
+    public function getUpdateFormColumns(): array
+    {
+        return [%FORM_UPDATE_COLUMNS%];
+    }
+
+    /**
+     * 修改表单提交字段默认值集合.
+     */
+    public function getUpdateFormRuleForm(): array
+    {
+        return [%FORM_UPDATE_RULE_FORM%];
+    }
+
+    /**
+     * 修改表单字段验证规则结合.
+     */
+    public function getUpdateFormRules(): array
+    {
+        return [%FORM_UPDATE_RULES%];
+    }
+}

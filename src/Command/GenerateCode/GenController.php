@@ -77,6 +77,7 @@ class GenController extends AbstractGen
     protected function putCodeToFile(string $bundle, string $table, string $priKey, array $requiredColumns, array $enumColumns, string $type = 'Frontend'): string
     {
         $service = $this->genNamespace($bundle, $table, 'Service');
+        $template = $this->genNamespace($bundle, $table, 'Template');
         $project = new Project();
         // singular复数单词转成单数
         // studly将下划线或中划线转成大驼峰
@@ -90,7 +91,7 @@ class GenController extends AbstractGen
             $this->mkdir($path);
         }
         // 替换模板基础数据并填充到文件中
-        $stubs = $this->buildClass($class, $service);
+        $stubs = $this->buildClass($class, $service, $template);
         $stubs = $this->replaceControllerCreateValidator($stubs, $requiredColumns);
         $stubs = $this->replaceControllerUpdateValidator($stubs, $priKey, $requiredColumns);
         $stubs = $this->replaceControllerEnumAction($stubs, $enumColumns);
@@ -103,17 +104,45 @@ class GenController extends AbstractGen
     }
 
     /**
+     * 替换AOP类名.
+     */
+    protected function replaceTemplateClass(string &$stub, string $template): self
+    {
+        $stub = str_replace('%TEMPLATE_CLASS%', $template, $stub);
+
+        return $this;
+    }
+
+    /**
+     * 替换引用类.
+     *
+     * @return $this
+     */
+    protected function replaceUses(string &$stub, string $uses): self
+    {
+        $stub = str_replace(
+            ['%USES%'],
+            [$uses],
+            $stub
+        );
+
+        return $this;
+    }
+
+    /**
      * 根据表名和类名替换基础代码模版里的内容.
      */
-    protected function buildClass(string $name, string $service): string
+    protected function buildClass(string $name, string $service, string $template): string
     {
         $service_class = str_replace($this->getNamespace($service) . '\\', '', $service);
+        $template_class = str_replace($this->getNamespace($template) . '\\', '', $template);
         // 获取基础内容
         $stub = file_get_contents(__DIR__ . '/stubs/Controller.stub');
 
         return $this->replaceNamespace($stub, $name)
-            ->replaceUses($stub, $service)
+            ->replaceUses($stub, "use {$service};\nuse {$template};")
             ->replaceClass($stub, $name)
+            ->replaceTemplateClass($stub, $template_class)
             ->replaceInjectClass($stub, $service_class);
     }
 

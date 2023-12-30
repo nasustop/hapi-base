@@ -13,6 +13,7 @@ namespace Nasustop\HapiBase;
 
 use Hyperf\HttpServer\CoreMiddleware;
 use Nasustop\HapiBase\Command\GenCodeCommand;
+use Nasustop\HapiBase\Command\GenTemplateCommand;
 use Nasustop\HapiBase\HttpServer\Request;
 use Nasustop\HapiBase\HttpServer\RequestInterface;
 use Nasustop\HapiBase\HttpServer\Response;
@@ -30,6 +31,7 @@ class ConfigProvider
             ],
             'commands' => [
                 GenCodeCommand::class,
+                GenTemplateCommand::class,
             ],
             'annotations' => [
                 'scan' => [

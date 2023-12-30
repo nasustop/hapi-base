@@ -13,6 +13,24 @@ class %CLASS% extends AbstractController
 {
     protected %INJECT_CLASS% $service;
 
+    public function actionTemplateList(): ResponseInterface
+    {
+        $template = $this->getTemplate()->getTableTemplate();
+        return $this->getResponse()->success($template);
+    }
+
+    public function actionTemplateCreate(): ResponseInterface
+    {
+        $template = $this->getTemplate()->getCreateFormTemplate();
+        return $this->getResponse()->success($template);
+    }
+
+    public function actionTemplateUpdate(): ResponseInterface
+    {
+        $template = $this->getTemplate()->getUpdateFormTemplate();
+        return $this->getResponse()->success($template);
+    }
+
     %CONTROLLER_ENUM_ACTION%
 
     public function actionCreate(): ResponseInterface
@@ -72,5 +90,16 @@ class %CLASS% extends AbstractController
             $this->service = make(%INJECT_CLASS%::class);
         }
         return $this->service;
+    }
+
+    /**
+     * get Template.
+     */
+    protected function getTemplate(): %TEMPLATE_CLASS%
+    {
+        if (empty($this->template)) {
+            $this->template = make(%TEMPLATE_CLASS%::class);
+        }
+        return $this->template;
     }
 }
