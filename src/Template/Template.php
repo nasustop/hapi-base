@@ -105,37 +105,17 @@ abstract class Template
      */
     public function getTableHeaderActions(): array
     {
-        $actions = [];
-        if (! empty($this->getTableHeaderFilter())) {
-            $query = [
-                'page' => 'page',
-                'page_size' => 'page_size',
-            ];
-            foreach (array_keys($this->getTableHeaderFilter()) as $value) {
-                $query[$value] = $value;
-            }
-            $actions['search'] = [
-                'title' => '搜索',
+        return [
+            'create' => [
+                'title' => '添加',
                 'type' => 'primary',
-                'icon' => 'el-icon-search',
-                'is_search' => true,
+                'icon' => 'el-icon-edit',
+                'jump' => true,
                 'url' => [
-                    'const' => $this->getTableApiUri(),
-                    'query' => $query,
-                    'refresh' => false,
+                    'const' => $this->getTableHeaderCreateActionUri(),
                 ],
-            ];
-        }
-        $actions['create'] = [
-            'title' => '添加',
-            'type' => 'primary',
-            'icon' => 'el-icon-edit',
-            'jump' => true,
-            'url' => [
-                'const' => $this->getTableHeaderCreateActionUri(),
             ],
         ];
-        return $actions;
     }
 
     /**
